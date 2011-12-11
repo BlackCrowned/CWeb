@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.1            */
-/* Rev: 1                    */
+/* Version: 0.2.2            */
+/* Rev: 0                    */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -29,6 +29,12 @@
  **Stack implemented
  *Version 0.2.1 (Rev1)
  **.append(a), etc, can now handle the same selectors than the CWeb-Object!
+ *Version 0.2.1 (Rev2)
+ **NEW Selectors: Plain Text now supported
+ *Version 0.2.2 (Rev0)
+ **Added:
+ ***.wrap(a): wraps all matched elements (a = selector)
+ ***.unwrap(): unwraps all matched elements
  */  
                       
 var CWeb = (function() {
@@ -59,7 +65,7 @@ CWeb.fn = CWeb.prototype = {
 				this.context = context ;
 				this.length = 1 ;
 			}
-			if (RegexpHTML.test(selector)) {
+			else if (RegexpHTML.test(selector)) {
 				var elem = this.createDomObj(selector) ;
 				this[0] = context.appendChild(elem) ;
 				this.context = context ;
@@ -80,8 +86,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2',
-	Rev: 'FINAL',
+	Version: '0.2.2',
+	Rev: '0',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -214,9 +220,16 @@ CWeb.fn = CWeb.prototype = {
 		DomObj.innerHTML = HTML ;
 		
 		return DomObj ;
-	}
-	
+	},
+	wrap: function(a) {
 		
+	},
+	unwrap: function() {
+		return this.each(this, function() {
+			this.parentNode.appendChild(this) ;
+			
+		}) ;
+	}		
 }
 //InitCWeb Prototype = CWeb Prototype
 CWeb.fn.InitCWeb.prototype = CWeb.fn ;
@@ -258,11 +271,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				id = selector.slice(1) ;
 				elem = document.getElementById(id) ;
 			}
-			if (RegexpHTML.test(selector)) {
+			else if (RegexpHTML.test(selector)) {
 				elem = this.createDomObj(selector) ;
 			}
 			else {
-				var elem = this.createDomObj("<p>" + selector + "</p>") ;
+				elem = this.createDomObj("<p>" + selector + "</p>") ;
 			}
 		}
 		if (selector instanceof Node) {
