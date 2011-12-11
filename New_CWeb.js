@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2              */
-/* Rev: FINAL                */
+/* Version: 0.2.1            */
+/* Rev: 1                    */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -27,6 +27,8 @@
  ***.childs(): returns the childs of the matched elements
  ***.end(): returns the last CWeb-Object from the CWeb-Stack
  **Stack implemented
+ *Version 0.2.1 (Rev1)
+ **.append(a), etc, can now handle the same selectors than the CWeb-Object!
  */  
                       
 var CWeb = (function() {
@@ -184,6 +186,9 @@ CWeb.fn = CWeb.prototype = {
 	},
 	manipDom: function(args, fn){
 		a = args ;
+		for (i = 0; i < a.length; i++) {
+			a[i] = this.selecter(args[i]) ;	
+		}
 		return this.each(this, function() {
 			if (a.length == undefined) {
 				a.length = 0 ;
@@ -237,7 +242,25 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			caller.Stack = caller.stack.pop() ;
 			return caller ;
 		}
-	},	
+	},
+	selecter: function(selector) {
+		var elem, id ;
+		//Is String?
+		if (typeof selector === "string") {
+			//ID
+			if (RegexpID.test(selector)) {
+				id = selector.slice(1) ;
+				elem = document.getElementById(id) ;
+			}
+			if (RegexpHTML.test(selector)) {
+				elem = this.createDomObj(selector) ;
+			}
+		}
+		if (selector instanceof Node) {
+			elem = selector ;
+		}
+	 	return elem ;
+	},
 	slice: function(from, to) {
 		if (!to) {
 			return this.slice(from) ;
