@@ -65,6 +65,12 @@ CWeb.fn = CWeb.prototype = {
 				this.context = context ;
 				this.length = 1 ;
 			}
+			else {
+				var elem = this.createDomObj("<p>" + selector + "</p>") ;
+				this[0] = context.appendChild(elem) ;
+				this.context = context ;
+				this.length = 1 ;	
+			}
 		}
 		if (selector instanceof Node) {
 			this[0] = selector ;
@@ -254,6 +260,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			if (RegexpHTML.test(selector)) {
 				elem = this.createDomObj(selector) ;
+			}
+			else {
+				var elem = this.createDomObj("<p>" + selector + "</p>") ;
 			}
 		}
 		if (selector instanceof Node) {
