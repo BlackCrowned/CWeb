@@ -37,6 +37,15 @@
  ***.unwrap(): unwraps all matched elements
  *Version 0.2.2 (Rev1)
  **Implementing: Animations <-- DO NOT WORK
+ *Version 0.2.2 (Rev2)
+ **Fixed .attr(type, name, value): Falls type versehentlich falsch geschrieben wurde.
+ **Added:
+ ***Kurzform für .style([type], cssprop, cssvalue):
+ ****Wenn man Attribute hinzufügen möchte, muss man nicht mehr zusätzlich am Anfang "add" angeben
+ ***.appendTo(target): Hängt alle Matched elements zu target an.
+ ***.attr(type, name, value): Nun für "set" auch "add" zulässig
+ ***Kurzform für .attr([type], name, value)_
+ ****Wenn man Attribute hinzufügen möchte, muss man nicht mehr zusätzlich am Anfang "add" angeben
  */  
                       
 var CWeb = (function() {
@@ -95,7 +104,13 @@ CWeb.fn = CWeb.prototype = {
 		return this.length ;
 	},
 	attr: function(type, name, value){
-		if (type == "set") {
+		//Kurzform für (set|add), überprüfen, ob alle anderen Möglichkeiten aussscheiden
+		if (!value && type != "remove" && type != "get") {
+			return this.each(this, function() {
+				this[type] = name ;
+			}, [type, name]) ;
+		}
+		if (type == "set" || "add") {
 			return this.each(this, function() {
 				this[name] = value ;
 			}, [name, value]) ;
@@ -110,8 +125,15 @@ CWeb.fn = CWeb.prototype = {
 				return this[i][name] ;	
 			}
 		}
+		return this;
 	},
 	css: function(type, cssprop, cssvalue) {
+		//Kurzform für add, überprüfen, ob alle anderen Möglichkeiten aussscheiden
+		if (!cssvalue && type != "clear" && type != "remove") {
+			return this.each(this, function() {
+				this.style[type] = cssprop ;
+			}, [type, cssprop]) ;
+		}
 		if (type == "add") {
 			return this.each(this, function() {
 				this.style[cssprop] = cssvalue ;	
@@ -231,7 +253,13 @@ CWeb.fn = CWeb.prototype = {
 			this.parentNode.appendChild(this) ;
 			
 		}) ;
-	}		
+	},
+	appendTo: function(target) {
+		elem = this.selecter(target) ;
+		return this.each(this, function() {
+			elem.appendChild(this) ;
+		}, [elem]) ;
+	}
 }
 //InitCWeb Prototype = CWeb Prototype
 CWeb.fn.InitCWeb.prototype = CWeb.fn ;
