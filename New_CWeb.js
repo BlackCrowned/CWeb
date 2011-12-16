@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.2            */
-/* Rev: 1                    */
+/* Rev: 2                    */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -98,7 +98,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.2',
-	Rev: '1',
+	Rev: '2',
 	length: 0,
 	size: function() {
 		return this.length ;
