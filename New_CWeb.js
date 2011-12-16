@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.2            */
-/* Rev: 0                    */
+/* Rev: 1                    */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -22,7 +22,7 @@
  **Added:
  ***.class(type, name): types: add, remove
  ***.attr(type, name, value): types: set, remove, get
- ***.style(type, cssprop, cssvalue): types: add, remove, clear, get
+ ***.css(type, cssprop, cssvalue): types: add, remove, clear, get
  ***.parent(): returns the parents of the matched elements
  ***.childs(): returns the childs of the matched elements
  ***.end(): returns the last CWeb-Object from the CWeb-Stack
@@ -35,6 +35,8 @@
  **Added:
  ***.wrap(a): wraps all matched elements (a = selector)
  ***.unwrap(): unwraps all matched elements
+ *Version 0.2.2 (Rev1)
+ **Implementing: Animations <-- DO NOT WORK
  */  
                       
 var CWeb = (function() {
@@ -87,7 +89,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.2',
-	Rev: '0',
+	Rev: '1',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -304,11 +306,69 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}
 		return obj ;
 	},
-	
+	push: Array.prototype.push,
+	pop: Array.prototype.pop,
 
 }) ;
 CWeb.fn = CWeb.extend(CWeb.fn, {
-	//TODO//
+	intervalCount: 100,
+	animate: function(speed, cssprops) {
+		var props = [] ;
+		props["speed"] = speed ;
+		if (speed == "slow") {
+			props["timeLeft"] = 1500 ;
+			props["allTime"] = 1500 ;	
+		}
+		if (speed == "fast") {
+			props["timeLeft"] = 500 ;
+			props["allTime"] = 500 ;	
+		}
+		for (i in cssprops) {
+			props[i] = cssprops[i] ;
+		}
+		this.startAnim() ;
+		self = this ;
+		return this.each(this, function() {
+			self.addQuery(this, props)
+		}, [props, self]) ;
+	},
+	addQuery: function(elems, props) {
+		for (i in elems) {
+			for (j in props) {
+				this.animQuery.push([i, j]) ;	
+			}
+		}
+	},
+	doAnim: function(self) {
+		var elem, props ;
+		var currTime = new Date().now ;
+		for (i in this.animQuery) {
+			elem = this.animQuery[i][0] ;
+			props = this.animQuery[i][1] ;
+			var lastTime = this.animQuery[i][3] ;
+			this.animQuery[i][3] = currTime ;
+			props["timeLeft"] -= lastTime ;
+			alert(this) ;
+			alert(props["width"]) ;
+			if (props["width"]) {
+				this.css("add", "width", "2px" /*/ props["allTime"] * props["timeLeft"]*/) ;
+			}
+		}
+	},
+	animQuery:[],
+	animStarted: false,
+	animIntervalID: null,
+	startAnim: function() {
+		this.animIntervalID = setInterval(this.doAnimation, this.IntervalCount) ;
+		this.animStarted = true;
+	},
+	stopAnim: function() {
+		clearInterval(self.animIntervalID) ;
+		self.animIntervalID = null ;
+		self.animStarted = false ;
+	},
+	
+	
 }) ;
 $ = CWeb ;
 window.$ = CWeb ;
