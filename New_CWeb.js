@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev2                 */
+/* Rev: Rev3                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -71,6 +71,9 @@
  **Fixed some stuff
  *Version 0.2.4 (Rev2)
  **Fixed: CWeb.getCurrCss: ParseFloat für den Rückgabewert wurde entfernt
+ *Version 0.2.4 (Rev3)
+ **Fixes
+ **Animationen teilweise funktionsfähig mit oncomplete-methode
  */  
                       
 var CWeb = (function() {
@@ -132,7 +135,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '2',
+	Rev: '3',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -464,14 +467,16 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					nextWidth = zielPos ;
 					props["DONE"] = true ;
 					}
+					else {props["DONE"] = false ;}
 				}
 				else if(zielPos < startPos) {
 					if ((nextWidth + step) < zielPos) {
 					nextWidth = zielPos ;
 					props["DONE"] = true ;
 					}
+					
 				}
-				else {props["DONE"] = false ;}
+				
 				nextWidth = String(nextWidth) + einheit ;
 			}
 			if (props["height"]) {
@@ -521,9 +526,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					if ((nextOp + step) < zielOp) {
 						nextOp = zielOp ;
 						props["DONE"] = true ;
-						if (props["oncomplete"]) {
-							props["oncomplete"].apply() ;
-						}
 					}
 					else {props["DONE"] = false ;}
 				}
@@ -537,11 +539,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (props["DONE"] == false) {
 				window.animQuery[i][1] = props ;
 			}
-			//Eintrag löschen
-			else {
-				
+			else if (props["DONE"] == true) {
 				if (props["oncomplete"]) {
-					props = props["oncomplete"]
+					var oncomplete = props["oncomplete"] ;
+					props = oncomplete.pop() ;
+					props["oncomplete"] = oncomplete ;
+					window.animQuery[i][1] = props ;
 				}
 				else {
 					CWeb.removeItem(window.animQuery, i) ;
@@ -558,9 +561,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	enqueue: function(elem, props) {
 		for (i in window.animQuery) {
 			if (window.animQuery[i][0] == elem) {
-				props["oncomplete"] = props
-				
-				window.animQuery[i][1] = props ;	
+				if (!window.animQuery[i][1]["oncomplete"]) {
+					window.animQuery[i][1]["oncomplete"] = [] ;
+				}
+				else {
+					window.animQuery[i][1]["oncomplete"].unshift(props) ;
+					return true ;
+				}
 			}
 		}
 		window.animQuery.push([elem, props]) ;

@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.2            */
-/* Rev: FINAL                */
+/* Version: 0.2.4            */
+/* Rev: Rev3                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -67,4 +67,11 @@
  **Changed:
  ***.class(type, name):
  ****NOW: .addClass(name) + .removeClass(name)
- */  
+ *Version 0.2.4 (Rev1)
+ **Fixed some stuff
+ *Version 0.2.4 (Rev2)
+ **Fixed: CWeb.getCurrCss: ParseFloat für den Rückgabewert wurde entfernt
+ *Version 0.2.4 (Rev3)
+ **Fixes
+ **Animationen teilweise funktionsfähig mit oncomplete-methode
+ */
