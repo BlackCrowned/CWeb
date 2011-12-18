@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev1                 */
+/* Rev: Rev2                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,6 +69,8 @@
  ****NOW: .addClass(name) + .removeClass(name)
  *Version 0.2.4 (Rev1)
  **Fixed some stuff
+ *Version 0.2.4 (Rev2)
+ **Fixed: CWeb.getCurrCss: ParseFloat für den Rückgabewert wurde entfernt
  */  
                       
 var CWeb = (function() {
@@ -130,7 +132,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '1',
+	Rev: '2',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -450,8 +452,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (props["width"]) {
 				var einheit, step ;
 				var zielPos = parseInt(props["width"]) ;
-				var curPos = CWeb.getCurCss(elem, "width") ;
-				var startPos = !props["startWidth"] ? props["startWidth"] = CWeb.getCurCss(elem, "width") : props["startWidth"] ;
+				var curPos = parseFloat(CWeb.getCurCss(elem, "width")) ;
+				var startPos = !props["startWidth"] ? props["startWidth"] = parseFloat(CWeb.getCurCss(elem, "width")) : props["startWidth"] ;
 				typeof props["width"] === "string" ? einheit = props["width"].replace(zielPos, "") : einheit = "px" ;
 				//Step mit easing
 				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
@@ -475,8 +477,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (props["height"]) {
 				var einheit, step ;
 				var zielPos = parseInt(props["height"]) ;
-				var curPos = CWeb.getCurCss(elem, "height") ;
-				var startPos = !props["startHeight"] ? props["startHeight"] = CWeb.getCurCss(elem, "height") : props["startHeight"] ;
+				var curPos = parseFloat(CWeb.getCurCss(elem, "height")) ;
+				var startPos = !props["startHeight"] ? props["startHeight"] = parseFloat(CWeb.getCurCss(elem, "height")) : props["startHeight"] ;
 				typeof props["height"] === "string" ? einheit = props["height"].replace(zielPos, "") : einheit = "px" ;
 				//Step mit easing
 				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
@@ -502,8 +504,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (props["opacity"]) {
 				var step ;
 				var zielOp = props["opacity"] ;
-				var curOp = CWeb.getCurCss(elem, "opacity") ;
-				var startOp = !props["startOp"] ? props["startOp"] = CWeb.getCurCss(elem, "opacity")  : props["startOp"] ;
+				var curOp = parseFloat(CWeb.getCurCss(elem, "opacity")) ;
+				var startOp = !props["startOp"] ? props["startOp"] = parseFloat(CWeb.getCurCss(elem, "opacity"))  : props["startOp"] ;
 				//Step mit easing
 				step = CWeb.easing.linear(diffTime, zielOp, startOp, allTime) ;
 				nextOp = curOp + step ;
@@ -586,11 +588,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 }) ;
 CWeb.getCurCss = function(elem, css) {
 	if (elem.style[css]) {
-		return parseFloat(elem.style[css]) ;	
+		return elem.style[css] ;	
 	}
 	else {
 		try  {
-			return parseFloat(document.defaultView.getComputedStyle(elem)[css]) ;
+			return document.defaultView.getComputedStyle(elem)[css] ;
 		}
 		catch(e) {
 			var ret = elem.currentStyle[css] ;
@@ -601,10 +603,10 @@ CWeb.getCurCss = function(elem, css) {
 				}
 				catch(e) {
 					ret = window.screen.width;	
-					return parseFloat(ret) ;
+					return ret ;
 				}
 			}
-			return parseFloat(ret) ;
+			return ret ;
 		}
 	}
 }

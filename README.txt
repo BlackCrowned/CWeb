@@ -1,3 +1,10 @@
+/*+++++++++++++++++++++++++++*/
+/* CWeb Javascript - Library */
+/* Version: 0.2.2            */
+/* Rev: FINAL                */
+/* Credits: Michael Möhrle   */
+/*+++++++++++++++++++++++++++*/
+
 /*
  *Changelog:                                    
  *Version 0.1 (Rev2):                           
@@ -57,4 +64,7 @@
  **Fixed:
  ***Animations: Now Cross-Browser
  ***Some other small Fixes
+ **Changed:
+ ***.class(type, name):
+ ****NOW: .addClass(name) + .removeClass(name)
  */  
