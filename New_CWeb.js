@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.2.1          */
-/* Rev: 0                    */
+/* Version: 0.2.2            */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -48,6 +48,15 @@
  ****Wenn man Attribute hinzufügen möchte, muss man nicht mehr zusätzlich am Anfang "add" angeben
  *Version 0.2.2.1 (Rev0)
  **Animations.... (Easings)
+ *Version 0.2.2 FINAL
+ **Added:
+ ***Animations:
+ ****width
+ ****heigth
+ ****opacity
+ ***AnimationCalls
+ ****.animate(AnimMap, [speed]): Example:
+ *****$("#Test").animate({width: 50}), "slow") ;
  */  
                       
 var CWeb = (function() {
@@ -99,8 +108,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.2.1',
-	Rev: '0',
+	Version: '0.2.2',
+	Rev: 'FINAL',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -340,37 +349,40 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}
 		return obj ;
 	},
+	
 	push: Array.prototype.push,
 	pop: Array.prototype.pop,
+	
 
 }) ;
 CWeb.easing = {
 	/*
 	 *t = Zeit Differenz
-	 *p = vorherige Position
 	 *z = Ziel Position
+	 *s = Start Position
 	 *d = Dauer
 	 */
-	linear: function(t, p, z, d) {
-		return z ;
+	linear: function(t, z, s, d) {
+		var step = ( z - s ) / d * t ;
+		return step ;
 	}
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
-	animate: function(speed, cssprops) {
+	animate: function(cssprops, speed) {
 		var props = [] ;
 		props["speed"] = speed ;
 		props["lastTime"] = CWeb.now() ;
 		if (speed == "slow") {
-			props["timeLeft"] = 1.500 ;
-			props["allTime"] = 1.500 ;	
+			props["timeLeft"] = 750 ;
+			props["allTime"] = 750 ;	
 		}
-		if (speed == "fast") {
+		else if (speed == "fast") {
+			props["timeLeft"] = 300 ;
+			props["allTime"] = 300 ;	
+		}
+		else  {
 			props["timeLeft"] = 500 ;
-			props["allTime"] = 500 ;	
-		}
-		if (speed == "normal" || !speed) {
-			props["timeLeft"] = 1.000 ;
-			props["allTime"] = 1.000 ;
+			props["allTime"] = 500 ;
 		}
 		for (i in cssprops) {
 			props[i] = cssprops[i] ;
@@ -383,7 +395,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [props]) ;
 	},
 	doAnimation: function() {
-		for (i in this.animQuery) {
+		for (i in window.animQuery) {
 			//Variablen vorbereiten
 			var elem = window.animQuery[i][0] ;
 			var props = window.animQuery[i][1] ;
@@ -392,14 +404,84 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			var timeLeft = props["timeLeft"] ;
 			var allTime = props["allTime"] ;
 			var diffTime = actTime - lastTime ;
+			var nextWidth = undefined;
+			var nextHeight = undefined;
+			var nextOp = undefined;
 			if (props["width"]) {
-				var width = parseInt(props["width"])
-				var einheit ;
+				var einheit, step ;
+				var zielPos = parseInt(props["width"]) ;
 				var curPos = CWeb.getCurCss(elem, "width") ;
-				typeof props["width"] === "string" ? einheit = props["width"].replace(width, "") : einheit = "px" ;
-				width = CWeb.easing.linear(diffTime, curPos, width, allTime) ;
-				width = String(width) + einheit ;
-				elem.style["width"] = width ;
+				var startPos = !props["startWidth"] ? props["startWidth"] = CWeb.getCurCss(elem, "width") : props["startWidth"] ;
+				typeof props["width"] === "string" ? einheit = props["width"].replace(zielPos, "") : einheit = "px" ;
+				//Step mit easing
+				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
+				nextWidth = curPos + step
+				//Verhindern, dass die Animation über das Ziel hinausläuft
+				if (zielPos > startPos) {
+					if ((nextWidth + step) > zielPos) {
+					nextWidth = zielPos ;
+					props["DONE"] = true ;
+					}
+				}
+				else if(zielPos < startPos) {
+					if ((nextWidth + step) < zielPos) {
+					nextWidth = zielPos ;
+					props["DONE"] = true ;
+					}
+				}
+				else {props["DONE"] = false ;}
+				nextWidth = String(nextWidth) + einheit ;
+			}
+			if (props["height"]) {
+				var einheit, step ;
+				var zielPos = parseInt(props["height"]) ;
+				var curPos = CWeb.getCurCss(elem, "height") ;
+				var startPos = !props["startHeight"] ? props["startHeight"] = CWeb.getCurCss(elem, "height") : props["startHeight"] ;
+				typeof props["height"] === "string" ? einheit = props["height"].replace(zielPos, "") : einheit = "px" ;
+				//Step mit easing
+				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
+				nextHeight = curPos + step
+				//Verhindern, dass die Animation über das Ziel hinausläuft
+				if (zielPos > startPos) {
+					if ((nextHeight + step) > zielPos) {
+					nextHeight = zielPos ;
+					props["DONE"] = true ;
+					}
+					else {props["DONE"] = false ;}
+				}
+				else if(zielPos < startPos) {
+					if ((nextHeight + step) < zielPos) {
+					nextHeight = zielPos ;
+					props["DONE"] = true ;
+					}
+					else {props["DONE"] = false ;}
+				}
+				
+				nextHeight = String(nextHeight) + einheit ;
+			}
+			if (props["opacity"]) {
+				var step ;
+				var zielOp = props["opacity"] ;
+				var curOp = CWeb.getCurCss(elem, "opacity") ;
+				var startOp = !props["startOp"] ? props["startOp"] = CWeb.getCurCss(elem, "opacity")  : props["startOp"] ;
+				//Step mit easing
+				step = CWeb.easing.linear(diffTime, zielOp, startOp, allTime) ;
+				nextOp = curOp + step ;
+				//Verhindern, dass die Animation über das Ziel hinausläuft
+				if (zielOp > startOp) {
+					if ((nextOp + step) > zielOp) {
+					nextOp = zielOp ;
+					props["DONE"] = true ;
+					}
+					else {props["DONE"] = false ;}
+				}
+				else if(zielOp < startOp) {
+					if ((nextOp + step) < zielOp) {
+					nextOp = zielOp ;
+					props["DONE"] = true ;
+					}
+					else {props["DONE"] = false ;}
+				}
 			}
 			//Variablen aktualisieren
 			timeLeft -= diffTime ;
@@ -407,16 +489,21 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			props["timeLeft"]-= diffTime ;
 			props["lastTime"] = actTime ;
 			//Variablen im animQuery speichern
-			window.animQuery[i][1] = props ;
+			if (props["DONE"] == false) {window.animQuery[i][1] = props ;}
+			//Eintrag löschen
+			else {CWeb.removeItem(window.animQuery, i) ;}
+			
+			//Styles anwenden:
+			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
+			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
+			if (nextOp != undefined) {elem.style["opacity"] = nextOp; }
+					
 		}
 	},
 	
 	enqueue: function(elem, props) {
 		window.animQuery.push([elem, props]) ;
 	},
-	animQuery:[],
-	animStarted: false,
-	animIntervalID: null,
 	startAnim: function() {
 		if (!window.animInit) {
 			window.animQuery = [] ;
@@ -440,11 +527,14 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 }) ;
 CWeb.getCurCss = function(elem, css) {
 	if (elem.style[css]) {
-		return parseInt(elem.style[css]) ;	
+		return parseFloat(elem.style[css]) ;	
 	}
 	else {
-		return parseInt(document.defaultView.getComputedStyle(elem)[css]) ;	
+		return parseFloat(document.defaultView.getComputedStyle(elem)[css]) ;	
 	}
+}
+CWeb.removeItem = function(arr, index) {
+	return arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 }
 $ = CWeb ;
 window.$ = CWeb ;
