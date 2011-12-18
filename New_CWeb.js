@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.3            */
-/* Rev: FINAL                */
+/* Version: 0.2.4            */
+/* Rev: Rev1                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -67,6 +67,8 @@
  **Changed:
  ***.class(type, name):
  ****NOW: .addClass(name) + .removeClass(name)
+ *Version 0.2.4 (Rev1)
+ **Fixed some stuff
  */  
                       
 var CWeb = (function() {
@@ -127,8 +129,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.3',
-	Rev: 'FINAL',
+	Version: '0.2.4',
+	Rev: '1',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -137,17 +139,17 @@ CWeb.fn = CWeb.prototype = {
 		//Kurzform für (set|add), überprüfen, ob alle anderen Möglichkeiten aussscheiden
 		if (!value && type != "remove" && type != "get") {
 			return this.each(this, function() {
-				this[type] = name ;
+				this.setAttribute(type, name) ;
 			}, [type, name]) ;
 		}
 		if (type == "set" || "add") {
 			return this.each(this, function() {
-				this[name] = value ;
+				this.setAttribute(name, value) ;
 			}, [name, value]) ;
 		}
 		if (type == "remove") {
 			return this.each(this, function() {
-				this[name] = null ;	
+				this.removeAttribute(name) ;
 			}, [name]) ;
 		}
 		if (type == "get") {
@@ -190,16 +192,10 @@ CWeb.fn = CWeb.prototype = {
 		}
 	},
 	addClass: function(name) {
-		return this.each(this, function() {
-			var Classes = this.classList ;
-			Classes[Classes.length] = name ;
-			this.classList = Classes ;
-		}, [name]) ;
+		return this.attr("class", name) ;
 	},
 	removeClass: function(name) {
-		return this.each(this, function() {
-				this.classList[name] = null ;
-			}, [name]) ; ;
+		return this.attr("remove", "class") ;
 	},
 	end: function() {
 		return this.Stack("pop") ;
