@@ -50,4 +50,11 @@
  ***AnimationCalls
  ****.animate(AnimMap, [speed]): Example:
  *****$("#Test").animate({width: 50}), "slow") ;
- */ 
+ *Version 0.2.3 FINAL
+ **Added:
+ ***.click(fn)
+ ***.hover(fn_in, fn_out)
+ **Fixed:
+ ***Animations: Now Cross-Browser
+ ***Some other small Fixes
+ */  
