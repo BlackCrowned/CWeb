@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev3                 */
+/* Rev: Rev4                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -74,6 +74,8 @@
  *Version 0.2.4 (Rev3)
  **Fixes
  **Animationen teilweise funktionsfähig mit oncomplete-methode
+ *Version 0.2.4 (Rev4)
+ **Verbessert: oncomplete Methode für Animationen <-- Funktioniert nicht!
  */  
                       
 var CWeb = (function() {
@@ -135,7 +137,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '3',
+	Rev: '4',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -542,12 +544,17 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			else if (props["DONE"] == true) {
 				if (props["oncomplete"]) {
 					var oncomplete = props["oncomplete"] ;
-					props = oncomplete.pop() ;
-					props["oncomplete"] = oncomplete ;
+					props = oncomplete[0] ;
+					oncomplete = oncomplete.removeItem(0) ;
+					if (oncomplete[0]) {
+						props["oncomplete"] = oncomplete ;
+					}
+
 					window.animQuery[i][1] = props ;
+				
 				}
 				else {
-					CWeb.removeItem(window.animQuery, i) ;
+					window.animQuery.removeItem(i) ;
 				}
 			}
 			//Styles anwenden:
@@ -564,10 +571,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (!window.animQuery[i][1]["oncomplete"]) {
 					window.animQuery[i][1]["oncomplete"] = [] ;
 				}
-				else {
-					window.animQuery[i][1]["oncomplete"].unshift(props) ;
-					return true ;
+				//window.animQuery[i][1]["oncomplete"][window.animQuery[i][1]["oncomplete"].length] = [] ;
+				for (j in props) {
+					window.animQuery[i][1]["oncomplete"][window.animQuery[i][1]["oncomplete"].length][j] = props[j] ;
 				}
+				return true ;
 			}
 		}
 		window.animQuery.push([elem, props]) ;
@@ -618,8 +626,15 @@ CWeb.getCurCss = function(elem, css) {
 	}
 }
 CWeb.removeItem = function(arr, index) {
+	arr = arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 	return arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 }
+//Array Prototype um .removeItem erweitern ;
+Array.prototype = CWeb.extend(Array.prototype, {
+	removeItem: function(index) {
+		return this.slice(0, index).concat(this.slice(index + 1)) ;
+	}
+}) ;
 $ = CWeb ;
 window.$ = CWeb ;
 
