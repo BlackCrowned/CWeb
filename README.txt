@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Rev1                 */
+/* Rev: Rev2                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -101,4 +101,11 @@
  **Einige kleinere Verbesserungen
  *Version 0.2.5 (Rev1)
  **.show([speed]) / .hide([speed]): Verbessert
+ *Version 0.2.5 (Rev2)
+ **Added:
+ ***.fadeOut([speed]): Faded eine Gruppe von matched Elements aus
+ ***.fadeIn([speed]): Faded eine Gruppe von matched Elements wieder ein
+ **Verbessert:
+ ***.show([speed])
+ ***.hide([speed])
  */

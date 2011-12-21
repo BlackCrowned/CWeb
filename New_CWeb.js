@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Rev1                 */
+/* Rev: Rev2                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -101,6 +101,13 @@
  **Einige kleinere Verbesserungen
  *Version 0.2.5 (Rev1)
  **.show([speed]) / .hide([speed]): Verbessert
+ *Version 0.2.5 (Rev2)
+ **Added:
+ ***.fadeOut([speed]): Faded eine Gruppe von matched Elements aus
+ ***.fadeIn([speed]): Faded eine Gruppe von matched Elements wieder ein
+ **Verbessert:
+ ***.show([speed])
+ ***.hide([speed])
  */ 
                       
 var CWeb = (function() {
@@ -167,7 +174,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: '1',
+	Rev: '2',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -474,10 +481,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed) {
 		self = this ;
 		this.each(this, function() {
-			this.hideStyle = [] ;
-			this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
-			this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
-			this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
+			if (!this.hideStyle) {
+				this.hideStyle = [] ;
+				this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
+				this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
+				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
+			}
 		}, [self]) ;
 		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed) ;
 	},
@@ -485,8 +494,30 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		self = this ;
 		this.each(this, function() {
 			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed) ;
+			this.hideStyle = undefined ;
 		}, [self, speed]) ;
-		this.hideStyle = undefined ;
+		
+		return this;
+	},
+	fadeOut: function(speed) {
+		self = this ;
+		this.each(this, function() {
+			if (!this.fadeStyle) {
+				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
+			}
+		}, [self]) ;
+		return this.animate({opacity: "0"}, speed) ;
+	},
+	fadeIn: function(speed) {
+		self = this ;
+		this.each(this, function() {
+			if (!this.fadeStyle) {
+				this.fadeStyle = 1 ;	
+			}
+			$(self[i]).animate({opacity: this.fadeStyle}, speed) ;
+			this.fadeStyle = undefined ;
+		}, [self, speed]) ;
+		return this;
 	},
 	animate: function(cssprops, speed) {
 		var props = [] ;
