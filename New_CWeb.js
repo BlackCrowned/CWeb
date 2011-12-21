@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev9                 */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -96,6 +96,9 @@
  **Verbessert:
  ***Animations-Handling: Objecte, die kein Element Enthalten, werden ignoriert ==> keine falschen Fehlermeldungen mehr
  ***Animations-Handling: Wenn sich kein Element mehr in der Animationsschleife befindet, wird der AnimationsIntervall gelöscht!
+ *Version 0.2.4 FINAL
+ **WORKING: Animation: ONCOMPLETE!!! (lastTime Property needs to be resetted!")
+ **Some other little Fixes
  */ 
                       
 var CWeb = (function() {
@@ -148,16 +151,21 @@ CWeb.fn = CWeb.prototype = {
 			}
 		}
 		catch(e) {
-			if (selector.nodeType) {
-				this[0] = selector ;
-				this.length = 1 ;
-				this.context = context ;
+			try {
+				if (selector.nodeType) {
+					this[0] = selector ;
+					this.length = 1 ;
+					this.context = context ;
+				}
+			}
+			catch(ex) {
+				
 			}
 		}
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '9',
+	Rev: 'FINAL',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -437,7 +445,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			else {
 				this.attachEvent("on" + type, fn) ;
-				add("atachEvent") ;
 			}
 		}, [type, fn]) ;
 	},
@@ -463,10 +470,22 @@ CWeb.easing = {
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed) {
+		self = this ;
+		this.each(this, function() {
+			self.hideStyle = [] ;
+			self.hideStyle[i] = [] ;
+			self.hideStyle[i]["width"] = CWeb.getCurCss(this, "width") ;
+			self.hideStyle[i]["height"] = CWeb.getCurCss(this, "height") ;
+			self.hideStyle[i]["opacity"] = CWeb.getCurCss(this, "opacity") ;
+		}, [self]) ;
 		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed) ;
 	},
 	show: function(speed) {
-			
+		self = this ;
+		this.each(this, function() {
+			$(self[i]).animate({width: self.hideStyle[i]["width"], height: self.hideStyle[i]["height"], opacity: self.hideStyle[i]["opacity"]}, speed) ;
+		}, [self, speed]) ;
+		this.hideStyle = undefined ;
 	},
 	animate: function(cssprops, speed) {
 		var props = [] ;
@@ -497,7 +516,21 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	doAnimation: function() {
 		for (i in window.animQuery) {
 			//Variablen vorbereiten
-			if (i == "removeItem") {	//Sinnlose Fehlermeldungen verhindern
+			if (i == "removeItem") {	//Verhindern, dass .removeItem als Array-Object angenommen wird
+				continue ;	
+			}
+			try {
+				if (!window.animQuery[i][0]) {	//Verhindern, dass fehlerhafte Elemente Fehler im IE verursachen
+					window.animQuery = window.animQuery.removeItem(i) ;	
+					continue ;
+				}
+			}
+			catch(e) {
+				window.animQuery = window.animQuery.removeItem(i) ;
+				continue ;
+			}
+			if (!window.animQuery[i][0].style) {	//Verhindern, dass Elemente ohne style, Attribute verwendet werden. z.B: DOMObject
+				window.animQuery = window.animQuery.removeItem(i) ;
 				continue ;	
 			}
 			var elem = window.animQuery[i][0] ;
@@ -510,6 +543,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			var nextWidth = undefined;
 			var nextHeight = undefined;
 			var nextOp = undefined;
+			
+			
+			
 			if (props["width"]) {
 				var einheit, step ;
 				var zielPos = parseInt(props["width"]) ;
@@ -601,6 +637,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (window.animQuery[i][2]) {
 					if (window.animQuery[i][2][0]) {
 						window.animQuery[i][1] = window.animQuery[i][2].shift() ;
+						window.animQuery[i][1]["lastTime"] = CWeb.now() ;
 					}
 					else {
 						window.animQuery = window.animQuery.removeItem(i) ;
@@ -621,7 +658,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			//Styles anwenden:
 			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
 			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
-			if (nextOp != undefined) {elem.style["opacity"] = nextOp; }
+			if (nextOp != undefined) {
+				elem.style["opacity"] = nextOp; 
+				elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
+			}
 					
 		}
 	},
