@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev8                 */
+/* Rev: Rev9                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -92,4 +92,8 @@
  **Added:
  ***.inner(selector): Hängt den Inhalt des selectors an eine Gruppe von matched Elements als ChildNode an.
                       Dafor aber der Inhalt der Elemente aus der Gruppe der matched Elements gelöscht.
+ *Version 0.2.4 (Rev9)
+ **Verbessert:
+ ***Animations-Handling: Objecte, die kein Element Enthalten, werden ignoriert ==> keine falschen Fehlermeldungen mehr
+ ***Animations-Handling: Wenn sich kein Element mehr in der Animationsschleife befindet, wird der AnimationsIntervall gelöscht!
  */

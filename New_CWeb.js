@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev8                 */
+/* Rev: Rev9                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -92,6 +92,10 @@
  **Added:
  ***.inner(selector): Hängt den Inhalt des selectors an eine Gruppe von matched Elements als ChildNode an.
                       Dafor aber der Inhalt der Elemente aus der Gruppe der matched Elements gelöscht.
+ *Version 0.2.4 (Rev9)
+ **Verbessert:
+ ***Animations-Handling: Objecte, die kein Element Enthalten, werden ignoriert ==> keine falschen Fehlermeldungen mehr
+ ***Animations-Handling: Wenn sich kein Element mehr in der Animationsschleife befindet, wird der AnimationsIntervall gelöscht!
  */ 
                       
 var CWeb = (function() {
@@ -153,7 +157,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '8',
+	Rev: '9',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -493,6 +497,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	doAnimation: function() {
 		for (i in window.animQuery) {
 			//Variablen vorbereiten
+			if (i == "removeItem") {	//Sinnlose Fehlermeldungen verhindern
+				continue ;	
+			}
 			var elem = window.animQuery[i][0] ;
 			var props = window.animQuery[i][1] ;
 			var actTime = CWeb.now() ;
@@ -597,10 +604,18 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					}
 					else {
 						window.animQuery = window.animQuery.removeItem(i) ;
+						//Falls keine Animation mehr ausgeführt werden muss, AnimationsIntervall Stoppen!
+						if (window.animQuery.length == 0) {
+							CWeb().stopAnim() ;
+						}
 					}
 				}
 				else {
 					window.animQuery = window.animQuery.removeItem(i) ;
+					//Falls keine Animation mehr ausgeführt werden muss, AnimationsIntervall Stoppen!
+					if (window.animQuery.length == 0) {
+						CWeb().stopAnim() ;
+					}
 				}
 			}
 			//Styles anwenden:
