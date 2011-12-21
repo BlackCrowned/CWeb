@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev7                 */
+/* Rev: Rev8                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -88,6 +88,10 @@
  ***.innerHTML(HTML): Fügt Text in eine Gruppe von matched Elements ein
  ***.outerText(): Gibt den Text des 1. matched Elements zurück
  ***.outerHTML(): Gibt den Text des 1. machted Elements zurück
+ *Version 0.2.4 (Rev8)
+ **Added:
+ ***.inner(selector): Hängt den Inhalt des selectors an eine Gruppe von matched Elements als ChildNode an.
+                      Dafor aber der Inhalt der Elemente aus der Gruppe der matched Elements gelöscht.
  */ 
                       
 var CWeb = (function() {
@@ -149,7 +153,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '7',
+	Rev: '8',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -322,6 +326,13 @@ CWeb.fn = CWeb.prototype = {
 		return this.each(this, function() {
 			return this.outerHTML ;	
 		}) ;
+	},
+	inner: function(selector) {
+		var elem = this.selecter(selector) ;
+		return this.each(this, function() {
+			this.innerHTML = "" ;
+			this.appendChild(elem) ;
+		}, [elem]) ;
 	}
 	
 }
