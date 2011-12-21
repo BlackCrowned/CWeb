@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.4            */
-/* Rev: FINAL                */
+/* Version: 0.2.5            */
+/* Rev: Rev1                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -98,7 +98,9 @@
  ***Animations-Handling: Wenn sich kein Element mehr in der Animationsschleife befindet, wird der AnimationsIntervall gelöscht!
  *Version 0.2.4 FINAL
  **WORKING: Animation: ONCOMPLETE!!! (lastTime Property needs to be resetted!")
- **Some other little Fixes
+ **Einige kleinere Verbesserungen
+ *Version 0.2.5 (Rev1)
+ **.show([speed]) / .hide([speed]): Verbessert
  */ 
                       
 var CWeb = (function() {
@@ -164,8 +166,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.4',
-	Rev: 'FINAL',
+	Version: '0.2.5',
+	Rev: '1',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -472,18 +474,17 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed) {
 		self = this ;
 		this.each(this, function() {
-			self.hideStyle = [] ;
-			self.hideStyle[i] = [] ;
-			self.hideStyle[i]["width"] = CWeb.getCurCss(this, "width") ;
-			self.hideStyle[i]["height"] = CWeb.getCurCss(this, "height") ;
-			self.hideStyle[i]["opacity"] = CWeb.getCurCss(this, "opacity") ;
+			this.hideStyle = [] ;
+			this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
+			this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
+			this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
 		}, [self]) ;
 		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed) ;
 	},
 	show: function(speed) {
 		self = this ;
 		this.each(this, function() {
-			$(self[i]).animate({width: self.hideStyle[i]["width"], height: self.hideStyle[i]["height"], opacity: self.hideStyle[i]["opacity"]}, speed) ;
+			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed) ;
 		}, [self, speed]) ;
 		this.hideStyle = undefined ;
 	},

@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.4            */
-/* Rev: FINAL                */
+/* Version: 0.2.5            */
+/* Rev: Rev1                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -98,5 +98,7 @@
  ***Animations-Handling: Wenn sich kein Element mehr in der Animationsschleife befindet, wird der AnimationsIntervall gelöscht!
  *Version 0.2.4 FINAL
  **WORKING: Animation: ONCOMPLETE!!! (lastTime Property needs to be resetted!")
- **Some other little Fixes
+ **Einige kleinere Verbesserungen
+ *Version 0.2.5 (Rev1)
+ **.show([speed]) / .hide([speed]): Verbessert
  */
