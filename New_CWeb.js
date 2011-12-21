@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev5                 */
+/* Rev: Rev6                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -78,6 +78,10 @@
  **Verbessert: oncomplete Methode für Animationen <-- Funktioniert nicht!
  *Version 0.2.4 (Rev5)
  **Verbessert oncomplete Methode für Animationen <-- NAJA
+ *Version 0.2.4 (Rev6)
+ **Added:
+ ***.show([speed]): Lässt eine Gruppe von matched Elements stylisch verschwinden
+ **Verbessert: oncpmplete Methode für Animationen <-- NAJA
  */ 
                       
 var CWeb = (function() {
@@ -139,7 +143,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '5',
+	Rev: '6',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -417,6 +421,12 @@ CWeb.easing = {
 	}
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
+	hide: function(speed) {
+		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed) ;
+	},
+	show: function(speed) {
+			
+	},
 	animate: function(cssprops, speed) {
 		var props = [] ;
 		props["speed"] = speed ;
@@ -544,8 +554,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				window.animQuery[i][1] = props ;
 			}
 			else if (props["DONE"] == true) {
-				if (window.animQuery[i][2][0]) {
-					window.animQuery[i][1] = window.animQuery[i][2].shift() ;
+				if (window.animQuery[i][2]) {
+					if (window.animQuery[i][2][0]) {
+						window.animQuery[i][1] = window.animQuery[i][2].shift() ;
+					}
+					else {
+						window.animQuery = window.animQuery.removeItem(i) ;
+					}
 				}
 				else {
 					window.animQuery = window.animQuery.removeItem(i) ;

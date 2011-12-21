@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev5                 */
+/* Rev: Rev6                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -78,4 +78,8 @@
  **Verbessert: oncomplete Methode für Animationen <-- Funktioniert nicht!
  *Version 0.2.4 (Rev5)
  **Verbessert oncomplete Methode für Animationen <-- NAJA
+ *Version 0.2.4 (Rev6)
+ **Added:
+ ***.show([speed]): Lässt eine Gruppe von matched Elements stylisch verschwinden
+ **Verbessert: oncpmplete Methode für Animationen <-- NAJA
  */
