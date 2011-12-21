@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev6                 */
+/* Rev: Rev7                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -82,6 +82,12 @@
  **Added:
  ***.show([speed]): Lässt eine Gruppe von matched Elements stylisch verschwinden
  **Verbessert: oncpmplete Methode für Animationen <-- NAJA
+ *Version 0.2.4 (Rev7)
+ **Added:
+ ***.innerText(Text): Fügt Text in eine Gruppe vom matched Elements ein
+ ***.innerHTML(HTML): Fügt Text in eine Gruppe von matched Elements ein
+ ***.outerText(): Gibt den Text des 1. matched Elements zurück
+ ***.outerHTML(): Gibt den Text des 1. machted Elements zurück
  */ 
                       
 var CWeb = (function() {
@@ -143,7 +149,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '6',
+	Rev: '7',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -296,6 +302,26 @@ CWeb.fn = CWeb.prototype = {
 		return this.each(this, function() {
 			elem.appendChild(this) ;
 		}, [elem]) ;
+	},
+	innerText: function(Text) {
+		return this.each(this, function() {
+			this.innerText = Text ;
+		}, [Text]) ;
+	},
+	innerHTML: function(HTML) {
+		return this.each(this, function() {
+			this.innerHTML = HTML ;	
+		}, [HTML]) ;
+	},
+	outerText: function() {
+		return this.each(this, function() {
+			return this.outerText ;	
+		}) ;
+	},
+	outerHTML: function() {
+		return this.each(this, function() {
+			return this.outerHTML ;	
+		}) ;
 	}
 	
 }

@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev6                 */
+/* Rev: Rev7                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -82,4 +82,10 @@
  **Added:
  ***.show([speed]): Lässt eine Gruppe von matched Elements stylisch verschwinden
  **Verbessert: oncpmplete Methode für Animationen <-- NAJA
+ *Version 0.2.4 (Rev7)
+ **Added:
+ ***.innerText(Text): Fügt Text in eine Gruppe vom matched Elements ein
+ ***.innerHTML(HTML): Fügt Text in eine Gruppe von matched Elements ein
+ ***.outerText(): Gibt den Text des 1. matched Elements zurück
+ ***.outerHTML(): Gibt den Text des 1. machted Elements zurück
  */
