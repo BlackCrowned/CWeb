@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev4                 */
+/* Rev: Rev5                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -76,7 +76,9 @@
  **Animationen teilweise funktionsfähig mit oncomplete-methode
  *Version 0.2.4 (Rev4)
  **Verbessert: oncomplete Methode für Animationen <-- Funktioniert nicht!
- */  
+ *Version 0.2.4 (Rev5)
+ **Verbessert oncomplete Methode für Animationen <-- NAJA
+ */ 
                       
 var CWeb = (function() {
 	var CWeb = function(selector, context) {
@@ -137,7 +139,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.4',
-	Rev: '4',
+	Rev: '5',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -542,19 +544,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				window.animQuery[i][1] = props ;
 			}
 			else if (props["DONE"] == true) {
-				if (props["oncomplete"]) {
-					var oncomplete = props["oncomplete"] ;
-					props = oncomplete[0] ;
-					oncomplete = oncomplete.removeItem(0) ;
-					if (oncomplete[0]) {
-						props["oncomplete"] = oncomplete ;
-					}
-
-					window.animQuery[i][1] = props ;
-				
+				if (window.animQuery[i][2][0]) {
+					window.animQuery[i][1] = window.animQuery[i][2].shift() ;
 				}
 				else {
-					window.animQuery.removeItem(i) ;
+					window.animQuery = window.animQuery.removeItem(i) ;
 				}
 			}
 			//Styles anwenden:
@@ -568,14 +562,14 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	enqueue: function(elem, props) {
 		for (i in window.animQuery) {
 			if (window.animQuery[i][0] == elem) {
-				if (!window.animQuery[i][1]["oncomplete"]) {
-					window.animQuery[i][1]["oncomplete"] = [] ;
+				if (!window.animQuery[i][2]) {
+					window.animQuery[i][2] = new Array() ;
 				}
-				//window.animQuery[i][1]["oncomplete"][window.animQuery[i][1]["oncomplete"].length] = [] ;
 				for (j in props) {
-					window.animQuery[i][1]["oncomplete"][window.animQuery[i][1]["oncomplete"].length][j] = props[j] ;
+					//window.animQuery[i][2][window.animQuery[i][2].length][j] = props[j] ;
+					window.animQuery[i][2].push(props) ;
 				}
-				return true ;
+				return window.animQuery ;
 			}
 		}
 		window.animQuery.push([elem, props]) ;

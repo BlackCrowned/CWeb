@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.4            */
-/* Rev: Rev4                 */
+/* Rev: Rev5                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -76,4 +76,6 @@
  **Animationen teilweise funktionsfähig mit oncomplete-methode
  *Version 0.2.4 (Rev4)
  **Verbessert: oncomplete Methode für Animationen <-- Funktioniert nicht!
+ *Version 0.2.4 (Rev5)
+ **Verbessert oncomplete Methode für Animationen <-- NAJA
  */
