@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Rev3                 */
+/* Rev: Rev4                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: '3',
+	Rev: '4',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -378,7 +378,7 @@ CWeb.easing = {
 	}
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
-	hide: function(speed) {
+	hide: function(speed, callback) {
 		self = this ;
 		this.each(this, function() {
 			if (!this.hideStyle) {
@@ -388,54 +388,56 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
 			}
 		}, [self]) ;
-		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed) ;
+		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed, callback) ;
 	},
-	show: function(speed) {
+	show: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed) ;
+			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed, callback) ;
 			this.hideStyle = undefined ;
 		}, [self, speed]) ;
 	},
-	fadeOut: function(speed) {
+	fadeOut: function(speed, callback) {
 		self = this ;
 		this.each(this, function() {
 			if (!this.fadeStyle) {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
 			}
 		}, [self]) ;
-		return this.animate({opacity: "0"}, speed) ;
+		return this.animate({opacity: "0"}, speed, callback) ;
 	},
-	fadeIn: function(speed) {
+	fadeIn: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
 			if (!this.fadeStyle) {
 				this.fadeStyle = 1 ;	
 			}
-			$(self[i]).animate({opacity: this.fadeStyle}, speed) ;
+			$(self[i]).animate({opacity: this.fadeStyle}, speed, callback) ;
 			this.fadeStyle = undefined ;
 		}, [self, speed]) ;
 	},
-	slideUp: function(speed) {
+	slideUp: function(speed, callback) {
 		self = this ;
 		this.each(this, function() {
 			if (!this.slideStyle) {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
 			}
 		}, [self]) ;
-		return this.animate({height: "0px"}, speed) ;
+		return this.animate({height: "0px"}, speed, callback) ;
 	},
-	slideDown: function(speed) {
+	slideDown: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			$(self[i]).animate({height: this.slideStyle}, speed) ;
+			$(self[i]).animate({height: this.slideStyle}, speed, callback) ;
 			this.slideStyle = undefined ;
 		}, [self, speed]) ;
 	},
-	animate: function(cssprops, speed) {
+	animate: function(cssprops, speed, callback) {
 		var props = [] ;
 		props["speed"] = speed ;
 		props["lastTime"] = CWeb.now() ;
+		props["callback"] = callback ;
+		
 		if (speed == "slow") {
 			props["timeLeft"] = 750 ;
 			props["allTime"] = 750 ;	
@@ -443,6 +445,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		else if (speed == "fast") {
 			props["timeLeft"] = 300 ;
 			props["allTime"] = 300 ;	
+		}
+		else if (speed == "instant") {
+			props["timeLeft"] = 1 ;
+			props["allTime"] = 1 ;	
 		}
 		else  {
 			props["timeLeft"] = 500 ;
@@ -579,6 +585,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				window.animQuery[i][1] = props ;
 			}
 			else if (props["DONE"] == true) {
+				//Callback ausführen
+				props["callback"].apply() ;
 				if (window.animQuery[i][2]) {
 					if (window.animQuery[i][2][0]) {
 						window.animQuery[i][1] = window.animQuery[i][2].shift() ;

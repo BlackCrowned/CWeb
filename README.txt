@@ -1,10 +1,3 @@
-/*+++++++++++++++++++++++++++*/
-/* CWeb Javascript - Library */
-/* Version: 0.2.5            */
-/* Rev: Rev3                 */
-/* Credits: Michael Möhrle   */
-/*+++++++++++++++++++++++++++*/
-
 /*
  *Changelog:                                    
  *Version 0.1 (Rev2):                           
@@ -112,4 +105,15 @@
  **Added:
  ***.slideUp([speed]): Lässt eine Gruppe von matched Elements elegant nach oben verschwinden
  ***.slideDown([speed]): Zeigt eine Gruppe von matched Elements wieder an(Mit Slide-Effekt), die zuerst mit SlideUp, versteckt wurde.
+ *Version 0.2.5 (Rev4)
+ **Added:
+ ***Callbacks:
+ ****Funktionen mit Callback: Bsp: $("#Test").animate({width: "100px"}, "slow", function() {alert("This is the Callback-Function") ;});
+ *****.show()
+ *****.hide()
+ *****.fadeOut()
+ *****.fadeIn()
+ *****.slideUp()
+ *****.slideDown()
+ *****.animate() ;
  */
