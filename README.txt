@@ -116,4 +116,8 @@
  *****.slideUp()
  *****.slideDown()
  *****.animate() ;
+ *Version 0.2.5 (Beta)
+ **Verbessert:
+ ***callbacks bei Animationen
+ ***.slideUp() / slideDown()
  */

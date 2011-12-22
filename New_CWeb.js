@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Rev4                 */
+/* Rev: Beta                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: '4',
+	Rev: 'Beta',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -395,7 +395,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		return this.each(this, function() {
 			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed, callback) ;
 			this.hideStyle = undefined ;
-		}, [self, speed]) ;
+		}, [self, speed, callback]) ;
 	},
 	fadeOut: function(speed, callback) {
 		self = this ;
@@ -414,7 +414,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			$(self[i]).animate({opacity: this.fadeStyle}, speed, callback) ;
 			this.fadeStyle = undefined ;
-		}, [self, speed]) ;
+		}, [self, speed, callback]) ;
 	},
 	slideUp: function(speed, callback) {
 		self = this ;
@@ -423,14 +423,15 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
 			}
 		}, [self]) ;
-		return this.animate({height: "0px"}, speed, callback) ;
-	},
+		this.animate({height: "0px"}, speed) ;
+		return this.animate({opacity: "0"}, "instant", callback) ;
+		},
 	slideDown: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			$(self[i]).animate({height: this.slideStyle}, speed, callback) ;
+			$(self[i]).css("opacity", "1").animate({height: this.slideStyle}, speed, callback) ;
 			this.slideStyle = undefined ;
-		}, [self, speed]) ;
+		}, [self, speed, callback]) ;
 	},
 	animate: function(cssprops, speed, callback) {
 		var props = [] ;
@@ -580,13 +581,24 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			//Variablen in props speichern
 			props["timeLeft"]-= diffTime ;
 			props["lastTime"] = actTime ;
+			
+			//Styles anwenden:
+			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
+			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
+			if (nextOp != undefined) {
+				elem.style["opacity"] = nextOp; 
+				elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
+			}
 			//Variablen im animQuery speichern
 			if (props["DONE"] == false) {
 				window.animQuery[i][1] = props ;
 			}
 			else if (props["DONE"] == true) {
-				//Callback ausführen
-				props["callback"].apply() ;
+				//Callback ausführen !Nur wenn Vorhanden!
+				if (props["callback"]) {
+					props["callback"].apply() ;
+					window.animQuery[i][1]["callback"] = undefined ;
+				}
 				if (window.animQuery[i][2]) {
 					if (window.animQuery[i][2][0]) {
 						window.animQuery[i][1] = window.animQuery[i][2].shift() ;
@@ -608,13 +620,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					}
 				}
 			}
-			//Styles anwenden:
-			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
-			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
-			if (nextOp != undefined) {
-				elem.style["opacity"] = nextOp; 
-				elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
-			}
+			
 					
 		}
 	},
