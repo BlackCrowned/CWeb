@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Rev2                 */
+/* Rev: Rev3                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -108,4 +108,8 @@
  **Verbessert:
  ***.show([speed])
  ***.hide([speed])
+ *Version 0.2.5 (Rev3)
+ **Added:
+ ***.slideUp([speed]): Lässt eine Gruppe von matched Elements elegant nach oben verschwinden
+ ***.slideDown([speed]): Zeigt eine Gruppe von matched Elements wieder an(Mit Slide-Effekt), die zuerst mit SlideUp, versteckt wurde.
  */
