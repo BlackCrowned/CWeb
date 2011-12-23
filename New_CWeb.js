@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.5            */
-/* Rev: FINAL                */
+/* Version: 0.2.6            */
+/* Rev: Rev1                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: 'FINAL',
+	Rev: '1',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -496,7 +496,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			var nextWidth = undefined;
 			var nextHeight = undefined;
 			var nextOp = undefined;
-			
+			var nextLeft = undefined;		
 			
 			
 			if (props["width"]) {
@@ -505,6 +505,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				var curPos = parseFloat(CWeb.getCurCss(elem, "width")) ;
 				var startPos = !props["startWidth"] ? props["startWidth"] = parseFloat(CWeb.getCurCss(elem, "width")) : props["startWidth"] ;
 				typeof props["width"] === "string" ? einheit = props["width"].replace(zielPos, "") : einheit = "px" ;
+				if (einheit == "") {einheit = "px" ;}
 				//Step mit easing
 				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
 				nextWidth = curPos + step
@@ -526,12 +527,41 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				
 				nextWidth = String(nextWidth) + einheit ;
 			}
+			if (props["left"]) {
+				var einheit, step ;
+				var zielPos = parseInt(props["left"]) ;
+				var curPos = parseFloat(CWeb.getCurCss(elem, "left")) ;
+				var startPos = !props["startLeft"] ? props["startLeft"] = parseFloat(CWeb.getCurCss(elem, "left")) : props["startLeft"] ;
+				typeof props["left"] === "string" ? einheit = props["left"].replace(zielPos, "") : einheit = "px" ;
+				if (einheit == "") {einheit = "px" ;}
+				//Step mit easing
+				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
+				nextLeft = curPos + step
+				//Verhindern, dass die Animation über das Ziel hinausläuft
+				if (zielPos > startPos) {
+					if ((nextLeft + step) > zielPos) {
+					nextLeft = zielPos ;
+					props["DONE"] = true ;
+					}
+					else {props["DONE"] = false ;}
+				}
+				else if(zielPos < startPos) {
+					if ((nextLeft + step) < zielPos) {
+					nextLeft = zielPos ;
+					props["DONE"] = true ;
+					}
+					
+				}
+				
+				nextLeft = String(nextLeft) + einheit ;
+			}
 			if (props["height"]) {
 				var einheit, step ;
 				var zielPos = parseInt(props["height"]) ;
 				var curPos = parseFloat(CWeb.getCurCss(elem, "height")) ;
 				var startPos = !props["startHeight"] ? props["startHeight"] = parseFloat(CWeb.getCurCss(elem, "height")) : props["startHeight"] ;
 				typeof props["height"] === "string" ? einheit = props["height"].replace(zielPos, "") : einheit = "px" ;
+				if (einheit == "") {einheit = "px" ;}
 				//Step mit easing
 				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
 				nextHeight = curPos + step
@@ -553,6 +583,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				
 				nextHeight = String(nextHeight) + einheit ;
 			}
+			
 			if (props["opacity"]) {
 				var step ;
 				var zielOp = props["opacity"] ;
@@ -590,6 +621,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				elem.style["opacity"] = nextOp; 
 				elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
 			}
+			if (nextLeft != undefined) {elem.style["left"] = nextLeft ;}
 			//Variablen im animQuery speichern
 			if (props["DONE"] == false) {
 				window.animQuery[i][1] = props ;

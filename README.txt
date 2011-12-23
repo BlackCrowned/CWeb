@@ -122,4 +122,8 @@
  ***.slideUp() / slideDown()
  *Version 0.2.5 FINAL
  **Verbessert: Animationen: Overflow, wird nun bei Animation versteckt!
+ *Version 0.2.6 (Rev1)
+ **Verbessert: .animate(props, speed, callback)
+ **Added:
+ ***AnimationsProperty: left
  */
