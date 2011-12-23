@@ -120,4 +120,6 @@
  **Verbessert:
  ***callbacks bei Animationen
  ***.slideUp() / slideDown()
+ *Version 0.2.5 FINAL
+ **Verbessert: Animationen: Overflow, wird nun bei Animation versteckt!
  */

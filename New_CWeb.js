@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.5            */
-/* Rev: Beta                 */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: 'Beta',
+	Rev: 'FINAL',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -461,6 +461,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		
 		this.startAnim() ;
 		var self = this ;
+		this.css("overflow", "hidden") ;
 		return this.each(this, function() {
 			self.enqueue(this, props) ;
 		}, [props]) ;
@@ -599,6 +600,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					props["callback"].apply() ;
 					window.animQuery[i][1]["callback"] = undefined ;
 				}
+				elem.style.overflow = undefined ;
 				if (window.animQuery[i][2]) {
 					if (window.animQuery[i][2][0]) {
 						window.animQuery[i][1] = window.animQuery[i][2].shift() ;
