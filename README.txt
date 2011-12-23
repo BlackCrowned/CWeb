@@ -126,4 +126,12 @@
  **Verbessert: .animate(props, speed, callback)
  **Added:
  ***AnimationsProperty: left
+ *Version 0.2.6 (Beta)
+ **stark Verbessert:
+ ***.show()
+ ***.hide()
+ ***.fadeIn()
+ ***.fadeOut()
+ ***.slideDown()
+ ***.slideUp()
  */

@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.6            */
-/* Rev: Rev1                 */
+/* Rev: Beta                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: '1',
+	Rev: 'Beta',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -380,57 +380,65 @@ CWeb.easing = {
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed, callback) {
 		self = this ;
-		this.each(this, function() {
-			if (!this.hideStyle) {
+		return this.each(this, function() {
+			if (this.hidden == false || !this.hidden) {
 				this.hideStyle = [] ;
 				this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
 				this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
+				CWeb(this).animate({width: "0px", height: "0px", opacity: "0"}, speed, callback) ;
+				this.hidden = true;
 			}
-		}, [self]) ;
-		return this.animate({width: "0px", height: "0px", opacity: "0"}, speed, callback) ;
+		}, [self, speed, callback]) ;
 	},
 	show: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			$(self[i]).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed, callback) ;
-			this.hideStyle = undefined ;
+			if (this.hidden == true) {
+					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed, callback) ;
+				this.hidden = false ;
+			}
 		}, [self, speed, callback]) ;
 	},
 	fadeOut: function(speed, callback) {
 		self = this ;
-		this.each(this, function() {
-			if (!this.fadeStyle) {
+		return this.each(this, function() {
+			if (this.faded == false || !this.faded) {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
+				CWeb(this).animate({opacity: "0"}, speed, callback) ;
+				this.faded = true ;
 			}
-		}, [self]) ;
-		return this.animate({opacity: "0"}, speed, callback) ;
+		}, [self, speed, callback]) ;
 	},
 	fadeIn: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			if (!this.fadeStyle) {
-				this.fadeStyle = 1 ;	
+			if (this.faded == true) {
+				if (!this.fadeStyle) {
+					this.fadeStyle = 1 ;	
+				}
+				CWeb(this).animate({opacity: this.fadeStyle}, speed, callback) ;
+				this.faded = false;
 			}
-			$(self[i]).animate({opacity: this.fadeStyle}, speed, callback) ;
-			this.fadeStyle = undefined ;
 		}, [self, speed, callback]) ;
 	},
 	slideUp: function(speed, callback) {
 		self = this ;
-		this.each(this, function() {
-			if (!this.slideStyle) {
+		return this.each(this, function() {
+			if (this.slided == false || !this.slided) {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
+				CWeb(this).animate({height: "0px"}, speed).animate({opacity: "0"}, "instant", callback) ;
+				this.slided = true ;
 			}
-		}, [self]) ;
-		this.animate({height: "0px"}, speed) ;
-		return this.animate({opacity: "0"}, "instant", callback) ;
+		}, [self, speed, callback]) ;
 		},
 	slideDown: function(speed, callback) {
 		self = this ;
 		return this.each(this, function() {
-			$(self[i]).css("opacity", "1").animate({height: this.slideStyle}, speed, callback) ;
-			this.slideStyle = undefined ;
+			if (this.slided == true) {
+				CWeb(this).css("opacity", "1").animate({height: this.slideStyle}, speed, callback) ;
+				this.slided = false ;
+			}
 		}, [self, speed, callback]) ;
 	},
 	animate: function(cssprops, speed, callback) {
