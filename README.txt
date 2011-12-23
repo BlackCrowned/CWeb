@@ -134,4 +134,6 @@
  ***.fadeOut()
  ***.slideDown()
  ***.slideUp()
+ *Version 0.2.6 (Beta1)
+ **Bug Fixes (IE)
  */

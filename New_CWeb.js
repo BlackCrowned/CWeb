@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.6            */
-/* Rev: Beta                 */
+/* Rev: Beta1                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -69,7 +69,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: 'Beta',
+	Rev: 'Beta1',
 	length: 0,
 	size: function() {
 		return this.length ;
@@ -379,7 +379,7 @@ CWeb.easing = {
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.hidden == false || !this.hidden) {
 				this.hideStyle = [] ;
@@ -392,7 +392,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [self, speed, callback]) ;
 	},
 	show: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.hidden == true) {
 					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"]}, speed, callback) ;
@@ -401,7 +401,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [self, speed, callback]) ;
 	},
 	fadeOut: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.faded == false || !this.faded) {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
@@ -411,7 +411,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [self, speed, callback]) ;
 	},
 	fadeIn: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.faded == true) {
 				if (!this.fadeStyle) {
@@ -423,7 +423,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [self, speed, callback]) ;
 	},
 	slideUp: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.slided == false || !this.slided) {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
@@ -433,7 +433,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}, [self, speed, callback]) ;
 		},
 	slideDown: function(speed, callback) {
-		self = this ;
+		var self = this ;
 		return this.each(this, function() {
 			if (this.slided == true) {
 				CWeb(this).css("opacity", "1").animate({height: this.slideStyle}, speed, callback) ;
@@ -640,7 +640,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					props["callback"].apply() ;
 					window.animQuery[i][1]["callback"] = undefined ;
 				}
-				elem.style.overflow = undefined ;
+				elem.style["overflow"] = undefined ;
 				if (window.animQuery[i][2]) {
 					if (window.animQuery[i][2][0]) {
 						window.animQuery[i][1] = window.animQuery[i][2].shift() ;
