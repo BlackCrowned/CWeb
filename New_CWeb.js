@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.6            */
-/* Rev: Beta1                */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -43,9 +43,15 @@ CWeb.fn = CWeb.prototype = {
 				var elem = this.createDomObj("<p>" + selector + "</p>") ;
 				this[0] = context.appendChild(elem) ;
 				this.context = context ;
+				this.plugin_file = selector ;
 				this.length = 1 ;	
 			}
 		}
+		//Is CWeb Object
+		if (selector.cWeb == true) {
+			return selector ;	
+		}
+		//Is DOMElement
 		try{
 			if (selector instanceof Node) {
 				this[0] = selector ;
@@ -69,8 +75,9 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.5',
-	Rev: 'Beta1',
+	Rev: 'FINAL',
 	length: 0,
+	cWeb: true,
 	size: function() {
 		return this.length ;
 	},
@@ -249,6 +256,12 @@ CWeb.fn = CWeb.prototype = {
 			this.innerHTML = "" ;
 			this.appendChild(elem) ;
 		}, [elem]) ;
+	},
+	includePlugin: function() {
+		Plugin = document.createElement("script") ;
+		Plugin.setAttribute("type", "text/javascript") ;
+		Plugin.setAttribute("src", this.plugin_file) ;
+		return CWeb(document.body).append(Plugin) ;
 	}
 	
 }
@@ -739,5 +752,6 @@ Array.prototype = CWeb.extend(Array.prototype, {
 }) ;
 $ = CWeb ;
 window.$ = CWeb ;
-
+window.cWeb = CWeb ;
+cWeb = CWeb ;
 })() ;

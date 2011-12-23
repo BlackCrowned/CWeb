@@ -136,4 +136,10 @@
  ***.slideUp()
  *Version 0.2.6 (Beta1)
  **Bug Fixes (IE)
+ *Version 0.2.6 FINAL
+ **Added:
+ ***.includePlugin(): Includiert das Plugin, dessen DateiName als Selector, beim Aufrufen mitgegeben wurde. Bsp:
+ ****cWeb("/foo/barr/plugin.js").includePlugin() ;
+ ***CWeb-Object als Selector
+ ***BugFixes
  */
