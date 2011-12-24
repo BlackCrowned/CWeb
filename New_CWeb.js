@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.6            */
-/* Rev: FINAL                */
+/* Version: 0.2.7            */
+/* Rev: Beta                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -76,8 +76,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.5',
-	Rev: 'FINAL',
+	Version: '0.2.7',
+	Rev: 'Beta',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -439,6 +439,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
 				this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
+				this.style["display"] = "block" ;
 				CWeb(this).animate({width: "0px", height: "0px", opacity: "0"}, speed, function() {
 					if (self[i]) {
 						self[i].style["display"] = "none" ;
@@ -527,6 +528,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		if (speed == "slow") {
 			props["timeLeft"] = 750 ;
 			props["allTime"] = 750 ;	
+		}
+		else if (speed == "debug") {
+			props["timeLeft"] = 10000 ;
+			props["allTime"] = 10000 ;
 		}
 		else if (speed == "fast") {
 			props["timeLeft"] = 300 ;
@@ -704,7 +709,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
 			if (nextOp != undefined) {
 				elem.style["opacity"] = nextOp; 
-				elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
+				//elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
 			}
 			if (nextLeft != undefined) {elem.style["left"] = nextLeft ;}
 			//Variablen im animQuery speichern
@@ -717,8 +722,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					props["callback"].apply() ;
 					window.animQuery[i][1]["callback"] = undefined ;
 				}
-				alert(elem) ;
-				elem.style["overflow"] = "show" ;
+				//elem.style["overflow"] = "show" ;
 				if (window.animQuery[i]) {
 					if (window.animQuery[i][2]) {
 						if (window.animQuery[i][2][0]) {

@@ -142,4 +142,8 @@
  ****cWeb("/foo/barr/plugin.js").includePlugin() ;
  ***CWeb-Object als Selector
  ***BugFixes
+ *Version 0.2.7 (Beta)
+ **Verbessert:
+ ***Weniger Error (CSS)
+ ***Animation funktioniert nun wieder mit Firefox und Chrome
  */
