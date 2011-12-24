@@ -149,4 +149,6 @@
  *Version 0.2.7 (Beta1)
  **Added:
  ***.css([type], cssmap) Nun 2 Möglichkeiten: .css([type], cssprop, [cssvalue]) und .css([type], cssmap)
+ *Version 0.2.7 FINAL
+ **Wrap funktioniert jetzt!
  */

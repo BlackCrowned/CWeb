@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.7            */
-/* Rev: Beta1                */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -77,7 +77,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.7',
-	Rev: 'Beta1',
+	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -249,12 +249,14 @@ CWeb.fn = CWeb.prototype = {
 		return DomObj ;
 	},
 	wrap: function(a) {
-		
+		var Elem = this.selecter(a) ;
+		return this.each(this, function() {
+			Elem.appendChild(this) ;
+		}, [Elem]) ;
 	},
 	unwrap: function() {
 		return this.each(this, function() {
 			this.parentNode.appendChild(this) ;
-			
 		}) ;
 	},
 	appendTo: function(target) {
