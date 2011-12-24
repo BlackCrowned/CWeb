@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.7            */
-/* Rev: Beta                 */
+/* Rev: Beta1                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -77,7 +77,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.7',
-	Rev: 'Beta',
+	Rev: 'Beta1',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -112,21 +112,42 @@ CWeb.fn = CWeb.prototype = {
 		if (!cssvalue && type != "clear" && type != "remove") {
 			return this.each(this, function() {
 				if (this.style) {
-					this.style[type] = cssprop ;
+					if (typeof type === "object") {
+						for (j in type) {
+							this.style[j] = type[j] ;	
+						}
+					}
+					else {
+						this.style[type] = cssprop ;
+					}
 				}
 			}, [type, cssprop]) ;
 		}
 		if (type == "add") {
 			return this.each(this, function() {
 				if (this.style) {
-					this.style[cssprop] = cssvalue ;	
+					if (typeof cssprop === "object") {
+						for (j in cssprop) {
+							this.style[j] = cssprop[j] ;	
+						}
+					}
+					else {
+						this.style[cssprop] = cssvalue ;	
+					}
 				}
 			}, [cssprop, cssvalue]) ;
 		}
 		if (type == "remove") {
 			return this.each(this, function() {
 				if (this.style) {
-					this.style[cssprop] = null ;
+					if (typeof cssprop === "object") {
+						for (j in cssprop) {
+							this.style[j] = null ;
+						}
+					}
+					else {
+						this.style[cssprop] = null ;
+					}
 				}
 			}, [cssprop]) ;
 		}

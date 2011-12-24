@@ -146,4 +146,7 @@
  **Verbessert:
  ***Weniger Error (CSS)
  ***Animation funktioniert nun wieder mit Firefox und Chrome
+ *Version 0.2.7 (Beta1)
+ **Added:
+ ***.css([type], cssmap) Nun 2 Möglichkeiten: .css([type], cssprop, [cssvalue]) und .css([type], cssmap)
  */
