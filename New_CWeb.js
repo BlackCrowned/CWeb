@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
 /* Version: 0.2.8            */
-/* Rev: 1                    */
+/* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -11,6 +11,7 @@ var CWeb = (function() {
 	},
 	
 	RegexpID = /^#\w*$/,
+	RegexpClass = /^\.\w*$/,
 	RegexpHTML = /^<\s*\w{1,}\s*(\w|\W)*(\/\s*>$|>(\w|\W){1,}\s*<\s*\/\w{1,}>)|>$/,
 	_$ = window.$,
 	_CWeb = window.CWeb ;
@@ -25,20 +26,38 @@ CWeb.fn = CWeb.prototype = {
 		}
 		//Is String?
 		if (typeof selector === "string") {
+			//Body
+			if (selector == "body") {
+				this[0] = document.body ;
+				this.context = context ;
+				this.length = 1 ;	
+			}
 			//ID
-			if (RegexpID.test(selector)) {
+			else if (RegexpID.test(selector)) {
 				id = selector.slice(1) ;
 				elem = document.getElementById(id) ;
 				this[0] = elem ;
 				this.context = context ;
 				this.length = 1 ;
 			}
+			//Class
+			else if (RegexpClass.test(selector)) {
+				Class = selector.slice(1) ;
+				elems = document.getElementsByClassName(Class) ;
+				for (i = 0; i < elems.lenght; i++) {
+					this[i] = elems[i] ;
+					this.length = i + 1 ;	
+				}
+				this.context = context ;
+			}
+			//HTML
 			else if (RegexpHTML.test(selector)) {
 				var elem = this.createDomObj(selector) ;
 				this[0] = context.appendChild(elem) ;
 				this.context = context ;
 				this.length = 1 ;
 			}
+			//Einfacher Text, wenn Obiges nicht zutrifft
 			else {
 				var elem = this.createDomObj("<p>" + selector + "</p>") ;
 				this[0] = context.appendChild(elem) ;
@@ -77,7 +96,7 @@ CWeb.fn = CWeb.prototype = {
 	 	return this ;
 	},
 	Version: '0.2.8',
-	Rev: '1',
+	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -225,7 +244,7 @@ CWeb.fn = CWeb.prototype = {
 	},
 	manipDom: function(args, fn){
 		a = args ;
-		self = this ;
+		var self = this ;
 		
 		return this.each(this, function() {
 			self.each(a, function() {
@@ -334,17 +353,28 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}
 	},
 	selecter: function(selector) {
-		var elem, id ;
+		var elem, id, Class ;
 		//Is String?
 		if (typeof selector === "string") {
+			//Body
+			if (selector == "body") {
+				elem = document.body ;
+			}
 			//ID
-			if (RegexpID.test(selector)) {
+			else if (RegexpID.test(selector)) {
 				id = selector.slice(1) ;
 				elem = document.getElementById(id) ;
 			}
+			//Class
+			else if (RegexpClass.test(selector)) {
+				Class = selector.slice(1) ;
+				elem = document.getElementsByClassName(Class) ;
+			}
+			//HTML
 			else if (RegexpHTML.test(selector)) {
 				elem = this.createDomObj(selector) ;
 			}
+			//Einfacher Text, wenn obiges nicht zutrifft
 			else {
 				elem = this.createDomObj("<p>" + selector + "</p>") ;
 			}
@@ -388,11 +418,30 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	
 
 }) ;
+CWeb.Browser = {
+	isIE: function() {
+		if (window.ActiveXObject) {
+			return true ;	
+		}
+		else {
+			return false ;	
+		}
+	}
+}
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	bindEvent: function(type, fn) {
 		return this.each(this, function() {
 			if (document.body.addEventListener) {
-				this.addEventListener(type, fn, false) ;
+				this.addEventListener(type, function() {
+					var evt = evt ? evt : window.event ;
+					if (CWeb.Browser.isIE() == false) {
+						evt.preventDefault() ;
+					}
+					else {
+						evt.returnValue = false ;
+					}
+					fn.apply() ;	
+				}, false) ;
 			}
 			else {
 				this.attachEvent("on" + type, fn) ;
@@ -401,6 +450,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	},
 	click: function(fn) {
 		return this.bindEvent("click", fn) ;
+	},
+	dblclick: function(fn) {
+		return this.bindEvent("dblclick", fn) ;	
 	},
 	toggle: function(fn_1, fn_2, fn_3) {
 		var self = this ;
@@ -745,7 +797,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
 			if (nextOp != undefined) {
 				elem.style["opacity"] = nextOp; 
-				//elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
+				if (CWeb.Browser.isIE()) {
+					elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
+				}
 			}
 			if (nextLeft != undefined) {elem.style["left"] = nextLeft ;}
 			//Variablen im animQuery speichern

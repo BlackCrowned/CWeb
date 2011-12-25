@@ -156,4 +156,17 @@
  ***.manipDom: Komplett neugeschrieben
  ***IE 7: cWeb.getCurCss(elem, cssprop) Gibt, wenn cssprops nicht selbst festgelegt worden sind nur die Größe des Bildschirms zurück, deshalb, testen, ob "auto" gesetzt war, somit hat die Animation zumindest am Schluss die richtige Ausgangsposition
  ***.fadeIn: Faded in, falls noch kein FadeOut, gestartet wurde.
+ *Version 0.2.8 FINAL
+ **Added:
+ ***Neue Selectoren:
+ ****'body' Für document.body
+ ****'.ClassName' Für Alle Elemente, die diese Klasse besitzen
+ ***Browser Check:
+ ****CWeb.Browser.isIE(): Bis jetzt nur Überprüfung, der ActiveXObjectes
+ ***PreventDefault, wird auf Elemente angewendet, die mit an ein Element gebunden werden.
+ ***.dblclick(handler): Doppel-Klick Event
+ ***Animation:
+ ****IE Test, Filter Attribut wird nur bei IE Angewendet
+ **Verbessert:
+ ***.manipDom: Funktioniert wieder mit IE 8/7
  */
