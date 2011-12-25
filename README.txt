@@ -151,4 +151,9 @@
  ***.css([type], cssmap) Nun 2 Möglichkeiten: .css([type], cssprop, [cssvalue]) und .css([type], cssmap)
  *Version 0.2.7 FINAL
  **Wrap funktioniert jetzt!
+ *Version 0.2.8 (Rev1)
+ **Verbessert
+ ***.manipDom: Komplett neugeschrieben
+ ***IE 7: cWeb.getCurCss(elem, cssprop) Gibt, wenn cssprops nicht selbst festgelegt worden sind nur die Größe des Bildschirms zurück, deshalb, testen, ob "auto" gesetzt war, somit hat die Animation zumindest am Schluss die richtige Ausgangsposition
+ ***.fadeIn: Faded in, falls noch kein FadeOut, gestartet wurde.
  */

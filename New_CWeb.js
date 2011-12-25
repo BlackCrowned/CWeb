@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.7            */
-/* Rev: FINAL                */
+/* Version: 0.2.8            */
+/* Rev: 1                    */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -76,8 +76,8 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.7',
-	Rev: 'FINAL',
+	Version: '0.2.8',
+	Rev: '1',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -225,22 +225,20 @@ CWeb.fn = CWeb.prototype = {
 	},
 	manipDom: function(args, fn){
 		a = args ;
-		for (i = 0; i < a.length; i++) {
-			a[i] = this.selecter(args[i]) ;	
-		}
+		self = this ;
+		
 		return this.each(this, function() {
-			if (a.length == undefined) {
-				a.length = 0 ;
-				for (i in a) {
-					a.length++ ;
+			self.each(a, function() {
+				//Überprüfen, on die Node geklont werden muss
+				if (self.length != 1) {
+					fn.apply(self[i], [this.cloneNode(true)]) ;
 				}
-			}
-			for (i = a.length; i >= 1; i--) {
-				fn.apply(this, a) ;
-				//1. Element entfernen
-				a[0] = a[i - 1] ;
-			}
-		}) ;
+				else {	//Muss nicht geklont werden
+					fn.apply(self[i], [this]) ;
+				}
+			}, [a, self]) ;
+		}, [a, self]) ;
+		
 	},
 	createDomObj: function(HTML) {
 		var DomObj = document.createElement("div") ;
@@ -505,6 +503,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	fadeIn: function(speed, callback) {
 		var self = this ;
 		return this.each(this, function() {
+			if (!this.faded) {
+				this.style["opacity"] = 0 ;
+				this.style["filter"] = "alpha(opacity=0)" ;
+				this.faded = true ;	
+			}
 			if (this.faded == true) {
 				if (!this.fadeStyle) {
 					this.fadeStyle = 1 ;	
@@ -609,7 +612,17 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			var nextWidth = undefined;
 			var nextHeight = undefined;
 			var nextOp = undefined;
-			var nextLeft = undefined;		
+			var nextLeft = undefined;
+			//Überprüfen, ob als CSS-Style Auto übergeben wird
+			if (!props["autoWidth"]) {
+				props["autoWidth"] = elem.style["width"] ;	
+			}
+			if (!props["autoHeight"]) {
+				props["autoHeight"] = elem.style["height"] ;	
+			}
+			if (!props["autoLeft"]) {
+				props["autoLeft"] = elem.style["left"] ;	
+			}
 			
 			
 			if (props["width"]) {
@@ -744,6 +757,16 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (props["callback"]) {
 					props["callback"].apply() ;
 					window.animQuery[i][1]["callback"] = undefined ;
+				}
+				//Falls CSS-Style == "auto" --> Wieder auf "auto" setzen
+				if (props["autoWidth"] == "auto") {
+					elem.style["width"] = "auto" ;
+				}
+				if (props["autoHeight"] == "auto") {
+					elem.style["height"] = "auto" ;
+				}
+				if (props["autoLeft"] == "auto") {
+					elem.style["left"] = "auto" ;
 				}
 				//elem.style["overflow"] = "show" ;
 				if (window.animQuery[i]) {
