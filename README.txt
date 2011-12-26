@@ -171,4 +171,6 @@
  ***.manipDom: Funktioniert wieder mit IE 8/7
  *Version 0.2.9 FINAL
  **BUG FIXES
+ *Version 0.2.9.1 FINAL
+ **Bug Fixes
  */

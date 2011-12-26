@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.9            */
+/* Version: 0.2.9.1          */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -95,7 +95,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.9',
+	Version: '0.2.9.1',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -524,7 +524,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (callback) {
 					callback.apply() ;
 				}
-			}) ;
+			}, "none") ;
 			this.hidden = true;
 		}, [self, speed, callback]) ;
 	},
@@ -558,7 +558,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (callback) {
 					callback.apply() ;
 				}
-			}) ;
+			}, "none") ;
 			this.faded = true ;
 		}, [self, speed, callback]) ;
 	},
@@ -600,7 +600,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (callback) {
 					callback.apply() ;
 				}
-			}) ;
+			}, "none") ;
 				this.slided = true ;
 		}, [self, speed, callback]) ;
 		},
@@ -620,11 +620,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 		}, [self, speed, callback]) ;
 	},
-	animate: function(cssprops, speed, callback) {
+	animate: function(cssprops, speed, callback, display) {
 		var props = [] ;
 		props["speed"] = speed ;
 		props["lastTime"] = CWeb.now() ;
 		props["callback"] = callback ;
+		props["display"] = display ;
 		
 		if (speed == "slow") {
 			props["timeLeft"] = 750 ;
@@ -837,6 +838,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (props["callback"]) {
 					props["callback"].apply() ;
 					window.animQuery[i][1]["callback"] = undefined ;
+				}
+				//Display setzen !Nur wenn vorhanden!
+				if (props["display"]) {
+					elem.style["display"] = props["display"] ;	
 				}
 				//Falls CSS-Style == "auto" --> Wieder auf "auto" setzen
 				if (props["autoWidth"] == "auto") {
