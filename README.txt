@@ -173,4 +173,12 @@
  **BUG FIXES
  *Version 0.2.9.1 FINAL
  **Bug Fixes
+ *Version 0.2.9.2 FINAL
+ **Added:
+ ***Anfang für CssSelectoren
+ ***.Data(action, [data, trace, id]): Zum globalen Speichern von Daten im cWeb-Object. (Actions: "add" / "remove" / "get") ;
+ ***.dataStack(action[, data]): Zum globalen Speichern von Daten, im Stack-Stiel: (Actions: "push" / "pop")
+ ***Nur noch 1 Globaler Handler für alle Events: Bessere Kontrolle
+ ***Der Object-Prototype wurde um .getItems() erweitert:
+ ****Bietet die Möglichkeit, alle Obersten Eigenschaften als Array zurückzugeben
  */
