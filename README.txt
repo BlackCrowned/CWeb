@@ -181,4 +181,7 @@
  ***Nur noch 1 Globaler Handler für alle Events: Bessere Kontrolle
  ***Der Object-Prototype wurde um .getItems() erweitert:
  ****Bietet die Möglichkeit, alle Obersten Eigenschaften als Array zurückzugeben
+ *Version 0.2.9.3 FINAL
+ **Many Many Many BugFixes
+ **.childs() heißt jetzt children()
  */
