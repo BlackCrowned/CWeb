@@ -184,4 +184,9 @@
  *Version 0.2.9.3 FINAL
  **Many Many Many BugFixes
  **.childs() heiﬂt jetzt children()
+ *Version 0.2.9.4 FINAL
+ **Added:
+ ***.unbindEvent(type, handler)
+ **Fixed:
+ ***Animationen
  */

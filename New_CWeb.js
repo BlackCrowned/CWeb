@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.9.3          */
+/* Version: 0.2.9.4          */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -97,7 +97,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.9.3',
+	Version: '0.2.9.4',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -518,6 +518,23 @@ CWeb.Event = {
 		cWeb.Event.firingList[elem.eid][type].push({handler: handler, params: params}) ;
 		return cWeb.Event.firingList ;
 	},
+	remove: function(elem, type, handler) {
+		if (!elem.eid) {
+			return;
+		}
+		if (!cWeb.Event.firingList[elem.eid]) {
+			return;
+		}
+		if (!cWeb.Event.firingList[elem.eid][type]) {
+			return;
+		}
+		for (var i in cWeb.Event.firingList[elem.eid][type]) {
+			if (cWeb.Event.firingList[elem.eid][type][i][handler]) {
+				cWeb.Event.firingList[elem.eid][type] = cWeb.Event.firingList[elem.eid][type].removeItem(i) ;
+			}
+		}
+		return true ;
+	},
 	eid: {
 		next: function() {
 			return this.cur++ ;
@@ -574,12 +591,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	},
 	unbindEvent: function(type, fn) {
 		return this.each(this, function() {
-			if (document.body.addEventListener) {
-				
-			}
-			else {
-				
-			}
+			cWeb.Event.remove(this, type, fn) ;
 		}, [type, fn]) ;
 	},
 	click: function(fn) {
@@ -649,13 +661,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, function() {
 				if (self[i]) {
-					self[i].style["display"] = "none" ;
 					self[i].hidden = true ;
 				}
 				if (callback) {
 					callback.apply() ;
 				}
-			}, "none") ;
+			}) ;
 			this.hidden = true;
 		}, [self, speed, callback]) ;
 	},
@@ -663,7 +674,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		var self = this ;
 		return this.each(this, function() {
 			if (this.hidden == true) {
-					this.style["display"] = "block" ;
 					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"], show: true}, speed, function() {
 						if (callback) {
 							callback.apply() ;
@@ -683,13 +693,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			CWeb(this).animate({opacity: "0", hide: true}, speed,function() {
 				if (self[i]) {
-					self[i].style["display"] = "none" ;
 					self[i].faded = true ;
 				}
 				if (callback) {
 					callback.apply() ;
 				}
-			}, "none") ;
+			}) ;
 			this.faded = true ;
 		}, [self, speed, callback]) ;
 	},
@@ -705,7 +714,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (!this.fadeStyle) {
 					this.fadeStyle = 1 ;	
 				}
-				this.style["display"] = "block" ;
 				CWeb(this).animate({opacity: this.fadeStyle, show: true}, speed, function() {
 						if (callback) {
 							callback.apply() ;
@@ -725,13 +733,12 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			CWeb(this).animate({height: "0px", hide: true}, speed, function() {
 				if (self[i]) {
-					self[i].style["display"] = "none" ;
 					self[i].slided = true ;
 				}
 				if (callback) {
 					callback.apply() ;
 				}
-			}, "none") ;
+			}) ;
 				this.slided = true ;
 		}, [self, speed, callback]) ;
 		},
@@ -739,8 +746,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		var self = this ;
 		return this.each(this, function() {
 			if (this.slided == true) {
-				this.style["display"] = "block" ;
-				CWeb(this).css("opacity", "1").animate({height: this.slideStyle, show: true}, speed, function() {
+				CWeb(this).animate({height: this.slideStyle, show: true}, speed, function() {
 						if (callback) {
 							callback.apply() ;
 						}
@@ -751,12 +757,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 		}, [self, speed, callback]) ;
 	},
-	animate: function(cssprops, speed, callback, display) {
+	animate: function(cssprops, speed, callback) {
 		var props = [] ;
 		props["speed"] = speed ;
 		props["lastTime"] = CWeb.now() ;
 		props["callback"] = callback ;
-		props["display"] = display ;
 		
 		if (speed == "slow") {
 			props["timeLeft"] = 750 ;
@@ -774,17 +779,22 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			props["timeLeft"] = 1 ;
 			props["allTime"] = 1 ;	
 		}
-		else  {
+		else if (speed != undefined) {
 			props["timeLeft"] = 500 ;
 			props["allTime"] = 500 ;
 		}
+		else if (typeof speed === "number") {
+			props["timeLeft"] = speed ;
+			props["allTime"] = speed ;
+		}
+		
 		for (var i in cssprops) {
 			props[i] = cssprops[i] ;
 		}
 		
 		this.startAnim() ;
 		var self = this ;
-		this.css("overflow", "hidden") ;
+		//this.css("overflow", "hidden") ;
 		return this.each(this, function() {
 			self.enqueue(this, props) ;
 		}, [props]) ;
@@ -834,7 +844,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 			
 			//Element sichtbar machen für Animation
-			if (CWeb.getCurCss(elem, "display") != "hidden") {
+			if (CWeb.getCurCss(elem, "display") != "hidden" || CWeb.getCurCss(elem, "display") != "none") {
 				elem.style["display"] = "block" ;
 			}
 			
@@ -846,6 +856,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			if (!props["oldOverflow"]) {
 				props["oldOverflow"] = CWeb.getCurCss(elem, "overflow") ;
 			}
+			//Overflow verstecken
+			elem.style["overflow"] = "hidden" ;
 			if (props["width"]) {
 				var einheit, step ;
 				var zielPos = parseInt(props["width"]) ;
@@ -870,6 +882,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					props["DONE"] = true ;
 					}
 					
+				}
+				else {
+					nextWidth = zielPos ;
+					props["DONE"] = true ;
 				}
 				
 				nextWidth = String(nextWidth) + einheit ;
@@ -899,6 +915,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					}
 					
 				}
+				else {
+					nextLeft = zielPos ;
+					props["DONE"] = true ;
+				}
 				
 				nextLeft = String(nextLeft) + einheit ;
 			}
@@ -927,6 +947,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					}
 					else {props["DONE"] = false ;}
 				}
+				else {
+					nextHeight = zielPos ;
+					props["DONE"] = true ;
+				}
 				
 				nextHeight = String(nextHeight) + einheit ;
 			}
@@ -953,6 +977,10 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 						props["DONE"] = true ;
 					}
 					else {props["DONE"] = false ;}
+				}
+				else {
+					nextOp = zielOp ;
+					props["DONE"] = true ;
 				}
 			}
 			//Variablen aktualisieren
