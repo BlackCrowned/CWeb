@@ -903,6 +903,20 @@ CWeb.fx = {
 			this.cssprop["nocss"] = null ;
 			var self = this ;
 		}
+		//Style setzten
+		this.css = function(elem, cssprop, cssvalue) {
+			
+			if (cssprop == "opacity") {
+				if (cWeb.Browser.isIE() && !elem.style.hasLayout) {
+					elem.style["zoom"] = 1 ;
+				}
+				if(cWeb.Browser.isIE()) {
+					elem.style["filter"] = "alpha(opacity=" + parseFloat(cssvalue) * 100 + ")" ;
+				}
+			}
+			
+			elem.style[cssprop] = cssvalue ;
+		}
 	}
 } ;
 CWeb.getCurCss = function(elem, css) {
