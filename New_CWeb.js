@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.9.4          */
+/* Version: 0.2.9.5          */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -54,14 +54,14 @@ CWeb.fn = CWeb.prototype = {
 			}
 			//HTML
 			else if (RegexpHTML.test(selector)) {
-				var elem = this.createDomObj(selector) ;
+				elem = this.createDomObj(selector) ;
 				this[0] = context.appendChild(elem) ;
 				this.context = context ;
 				this.length = 1 ;
 			}
 			//Einfacher Text, wenn Obiges nicht zutrifft
 			else {
-				var elem = this.createDomObj("<p>" + selector + "</p>") ;
+				elem = this.createDomObj("<p>" + selector + "</p>") ;
 				this[0] = context.appendChild(elem) ;
 				this.context = context ;
 				this.plugin_file = selector ;
@@ -97,7 +97,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.9.4',
+	Version: '0.2.9.5',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -110,19 +110,19 @@ CWeb.fn = CWeb.prototype = {
 			return this.each(this, function() {
 				this.setAttribute(type, name) ;
 			}, [type, name]) ;
-		}
-		if (type == "set" || "add") {
+		} ;
+		if (type == "set" || type == "add") {
 			return this.each(this, function() {
 				this.setAttribute(name, value) ;
 			}, [name, value]) ;
-		}
+		} ;
 		if (type == "remove") {
 			return this.each(this, function() {
 				this.removeAttribute(name) ;
 			}, [name]) ;
 		}
 		if (type == "get") {
-			for (i = 0; i < this.length; i++) {
+			for (var i = 0; i < this.length; i++) {
 				return this[i][name] ;	
 			}
 		}
@@ -652,6 +652,9 @@ CWeb.easing = {
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed, callback) {
 		var self = this ;
+		if (!speed) {
+			speed = "instant" ;
+		}
 		return this.each(this, function() {
 			if (this.hidden == false || !this.hidden) {
 				this.hideStyle = [] ;
@@ -660,11 +663,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
 			}
 			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, function() {
-				if (self[i]) {
-					self[i].hidden = true ;
-				}
-				if (callback) {
-					callback.apply() ;
+				for (var i = 0; i < self.length; i++) {
+					if (self[i]) {
+						self[i].hidden = true ;
+					}
+					if (callback) {
+						callback.apply() ;
+					}
 				}
 			}) ;
 			this.hidden = true;
@@ -672,6 +677,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	},
 	show: function(speed, callback) {
 		var self = this ;
+		if (!speed) {
+			speed = "instant" ;
+		}
 		return this.each(this, function() {
 			if (this.hidden == true) {
 					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"], show: true}, speed, function() {
@@ -692,11 +700,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
 			}
 			CWeb(this).animate({opacity: "0", hide: true}, speed,function() {
-				if (self[i]) {
-					self[i].faded = true ;
-				}
-				if (callback) {
-					callback.apply() ;
+				for (var i = 0; i < self.length; i++) {
+					if (self[i]) {
+						self[i].faded = true ;
+					}
+					if (callback) {
+						callback.apply() ;
+					}
 				}
 			}) ;
 			this.faded = true ;
@@ -732,11 +742,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
 			}
 			CWeb(this).animate({height: "0px", hide: true}, speed, function() {
-				if (self[i]) {
-					self[i].slided = true ;
-				}
-				if (callback) {
-					callback.apply() ;
+				for (var i = 0; i < self.length; i++) {
+					if (self[i]) {
+						self[i].slided = true ;
+					}
+					if (callback) {
+						callback.apply() ;
+					}
 				}
 			}) ;
 				this.slided = true ;
@@ -767,10 +779,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			props["timeLeft"] = 750 ;
 			props["allTime"] = 750 ;	
 		}
-		else if (speed == "debug") {
-			props["timeLeft"] = 10000 ;
-			props["allTime"] = 10000 ;
-		}
 		else if (speed == "fast") {
 			props["timeLeft"] = 300 ;
 			props["allTime"] = 300 ;	
@@ -779,13 +787,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			props["timeLeft"] = 1 ;
 			props["allTime"] = 1 ;	
 		}
-		else if (speed != undefined) {
-			props["timeLeft"] = 500 ;
-			props["allTime"] = 500 ;
-		}
 		else if (typeof speed === "number") {
 			props["timeLeft"] = speed ;
 			props["allTime"] = speed ;
+		}
+		else {
+			props["timeLeft"] = 500 ;
+			props["allTime"] = 500 ;
 		}
 		
 		for (var i in cssprops) {
@@ -794,7 +802,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		
 		this.startAnim() ;
 		var self = this ;
-		//this.css("overflow", "hidden") ;
 		return this.each(this, function() {
 			self.enqueue(this, props) ;
 		}, [props]) ;
@@ -887,7 +894,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					nextWidth = zielPos ;
 					props["DONE"] = true ;
 				}
-				
+				//Fixing Errors with IE
 				nextWidth = String(nextWidth) + einheit ;
 			}
 			if (props["left"]) {
@@ -919,7 +926,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					nextLeft = zielPos ;
 					props["DONE"] = true ;
 				}
-				
+				//Fixing Errors with IE
 				nextLeft = String(nextLeft) + einheit ;
 			}
 			if (props["height"]) {
@@ -951,10 +958,11 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					nextHeight = zielPos ;
 					props["DONE"] = true ;
 				}
-				
+				nextHeight = Math.round(nextHeight);
+				//cWeb("#DebugLog").append(String(nextHeight)) ;
 				nextHeight = String(nextHeight) + einheit ;
 			}
-			
+							
 			if (props["opacity"]) {
 				var step ;
 				var zielOp = props["opacity"] ;
@@ -991,7 +999,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			
 			//Styles anwenden:
 			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
-			if (nextHeight != undefined) {elem.style["height"] = nextHeight; }
+			if (nextHeight != undefined) {elem.style["height"] = nextHeight;}
 			if (nextOp != undefined) {
 				elem.style["opacity"] = nextOp; 
 				if (CWeb.Browser.isIE()) {
@@ -1057,9 +1065,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					}
 				}
 			}
-			
-					
 		}
+		
 	},
 	
 	enqueue: function(elem, props) {
@@ -1141,6 +1148,7 @@ CWeb.removeItem = function(arr, index) {
 Array.prototype.removeItem = function(index) {
 		return this.slice(0, index).concat(this.slice(index + 1)) ;
 } ;
+//Object Prototype um .getItems erweitern ;
 Object.prototype.getItems = function() {
 		var items = [] ;
 		for (i in this) {

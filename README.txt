@@ -189,4 +189,6 @@
  ***.unbindEvent(type, handler)
  **Fixed:
  ***Animationen
+ *Version 0.2.9.4 FINAL
+ **FIXES
  */
