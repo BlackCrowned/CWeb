@@ -771,29 +771,30 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	},
 	animate: function(cssprops, speed, callback) {
 		var props = [] ;
-		props["speed"] = speed ;
-		props["lastTime"] = CWeb.now() ;
-		props["callback"] = callback ;
+		props["nocss"] = []
+		props["nocss"]["speed"] = speed ;
+		props["nocss"]["lastTime"] = CWeb.now() ;
+		props["nocss"]["callback"] = callback ;
 		
 		if (speed == "slow") {
-			props["timeLeft"] = 750 ;
-			props["allTime"] = 750 ;	
+			props["nocss"]["timeLeft"] = 750 ;
+			props["nocss"]["allTime"] = 750 ;	
 		}
 		else if (speed == "fast") {
-			props["timeLeft"] = 300 ;
-			props["allTime"] = 300 ;	
+			props["nocss"]["timeLeft"] = 300 ;
+			props["nocss"]["allTime"] = 300 ;	
 		}
 		else if (speed == "instant") {
-			props["timeLeft"] = 1 ;
-			props["allTime"] = 1 ;	
+			props["nocss"]["timeLeft"] = 1 ;
+			props["nocss"]["allTime"] = 1 ;	
 		}
 		else if (typeof speed === "number") {
-			props["timeLeft"] = speed ;
-			props["allTime"] = speed ;
+			props["nocss"]["timeLeft"] = speed ;
+			props["nocss"]["allTime"] = speed ;
 		}
 		else {
-			props["timeLeft"] = 500 ;
-			props["allTime"] = 500 ;
+			props["nocss"]["timeLeft"] = 500 ;
+			props["nocss"]["allTime"] = 500 ;
 		}
 		
 		for (var i in cssprops) {
@@ -806,305 +807,104 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			self.enqueue(this, props) ;
 		}, [props]) ;
 	},
-	doAnimation: function() {
-		for (var i = 0; i < window.animQuery.length; i++) {
-			try {
-			//Verhindern, dass fehlerhafte Elemente Fehler im IE verursachen
-				if (!window.animQuery[i]) {
-					continue ;
-				}
-				if (!window.animQuery[i][0]) {	
-					window.animQuery = window.animQuery.removeItem(i) ;	
-					continue ;
-				}
-			}
-			catch(e) {
-				window.animQuery = window.animQuery.removeItem(i) ;
-				continue ;
-			}
-			//Verhindern, dass Elemente ohne style, Attribute verwendet werden. z.B: DOMObject
-			if (!window.animQuery[i][0].style) {	
-				window.animQuery = window.animQuery.removeItem(i) ;
-				continue ;	
-			}
-			//Variablen vorbereiten
-			var elem = window.animQuery[i][0] ;
-			var props = window.animQuery[i][1] ;
-			var actTime = CWeb.now() ;
-			var lastTime = props["lastTime"] ;
-			var timeLeft = props["timeLeft"] ;
-			var allTime = props["allTime"] ;
-			var diffTime = actTime - lastTime ;
-			var nextWidth = undefined;
-			var nextHeight = undefined;
-			var nextOp = undefined;
-			var nextLeft = undefined;
-			//Überprüfen, ob als CSS-Style Auto übergeben wird
-			if (!props["autoWidth"]) {
-				props["autoWidth"] = elem.style["width"] ;	
-			}
-			if (!props["autoHeight"]) {
-				props["autoHeight"] = elem.style["height"] ;	
-			}
-			if (!props["autoLeft"]) {
-				props["autoLeft"] = elem.style["left"] ;	
-			}
-			
-			//Element sichtbar machen für Animation
-			if (CWeb.getCurCss(elem, "display") != "hidden" || CWeb.getCurCss(elem, "display") != "none") {
-				elem.style["display"] = "block" ;
-			}
-			
-			//MSIE hat Probleme mit Opacity
-			if (cWeb.Browser.isIE() && !elem.currentStyle["hasLayout"]) {
-				elem.style["zoom"] = "1" ;
-			}
-			//Alter Overflow-Wert speichern
-			if (!props["oldOverflow"]) {
-				props["oldOverflow"] = CWeb.getCurCss(elem, "overflow") ;
-			}
-			//Overflow verstecken
-			elem.style["overflow"] = "hidden" ;
-			if (props["width"]) {
-				var einheit, step ;
-				var zielPos = parseInt(props["width"]) ;
-				var curPos = parseFloat(CWeb.getCurCss(elem, "width")) ;
-				var startPos = !props["startWidth"] ? props["startWidth"] = parseFloat(CWeb.getCurCss(elem, "width")) : props["startWidth"] ;
-				typeof props["width"] === "string" ? einheit = props["width"].replace(zielPos, "") : einheit = "px" ;
-				if (einheit == "") {einheit = "px" ;}
-				//Step mit easing
-				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
-				nextWidth = curPos + step
-				//Verhindern, dass die Animation über das Ziel hinausläuft
-				if (zielPos > startPos) {
-					if ((nextWidth + step) > zielPos) {
-					nextWidth = zielPos ;
-					props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else if(zielPos < startPos) {
-					if ((nextWidth + step) < zielPos) {
-					nextWidth = zielPos ;
-					props["DONE"] = true ;
-					}
-					
-				}
-				else {
-					nextWidth = zielPos ;
-					props["DONE"] = true ;
-				}
-				//Fixing Errors with IE
-				nextWidth = String(nextWidth) + einheit ;
-			}
-			if (props["left"]) {
-				var einheit, step ;
-				var zielPos = parseInt(props["left"]) ;
-				var curPos = parseFloat(CWeb.getCurCss(elem, "left")) ;
-				var startPos = !props["startLeft"] ? props["startLeft"] = parseFloat(CWeb.getCurCss(elem, "left")) : props["startLeft"] ;
-				typeof props["left"] === "string" ? einheit = props["left"].replace(zielPos, "") : einheit = "px" ;
-				if (einheit == "") {einheit = "px" ;}
-				//Step mit easing
-				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
-				nextLeft = curPos + step
-				//Verhindern, dass die Animation über das Ziel hinausläuft
-				if (zielPos > startPos) {
-					if ((nextLeft + step) > zielPos) {
-					nextLeft = zielPos ;
-					props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else if(zielPos < startPos) {
-					if ((nextLeft + step) < zielPos) {
-					nextLeft = zielPos ;
-					props["DONE"] = true ;
-					}
-					
-				}
-				else {
-					nextLeft = zielPos ;
-					props["DONE"] = true ;
-				}
-				//Fixing Errors with IE
-				nextLeft = String(nextLeft) + einheit ;
-			}
-			if (props["height"]) {
-				var einheit, step ;
-				var zielPos = parseInt(props["height"]) ;
-				var curPos = parseFloat(CWeb.getCurCss(elem, "height")) ;
-				var startPos = !props["startHeight"] ? props["startHeight"] = parseFloat(CWeb.getCurCss(elem, "height")) : props["startHeight"] ;
-				typeof props["height"] === "string" ? einheit = props["height"].replace(zielPos, "") : einheit = "px" ;
-				if (einheit == "") {einheit = "px" ;}
-				//Step mit easing
-				step = CWeb.easing.linear(diffTime, zielPos, startPos, allTime) ;
-				nextHeight = curPos + step
-				//Verhindern, dass die Animation über das Ziel hinausläuft
-				if (zielPos > startPos) {
-					if ((nextHeight + step) > zielPos) {
-					nextHeight = zielPos ;
-					props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else if(zielPos < startPos) {
-					if ((nextHeight + step) < zielPos) {
-					nextHeight = zielPos ;
-					props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else {
-					nextHeight = zielPos ;
-					props["DONE"] = true ;
-				}
-				nextHeight = Math.round(nextHeight);
-				//cWeb("#DebugLog").append(String(nextHeight)) ;
-				nextHeight = String(nextHeight) + einheit ;
-			}
-							
-			if (props["opacity"]) {
-				var step ;
-				var zielOp = props["opacity"] ;
-				var curOp = parseFloat(CWeb.getCurCss(elem, "opacity")) ;
-				var startOp = !props["startOp"] ? props["startOp"] = parseFloat(CWeb.getCurCss(elem, "opacity"))  : props["startOp"] ;
-				//Step mit easing
-				step = CWeb.easing.linear(diffTime, zielOp, startOp, allTime) ;
-				nextOp = curOp + step ;
-				//Verhindern, dass die Animation über das Ziel hinausläuft
-				if (zielOp > startOp) {
-					if ((nextOp + step) > zielOp) {
-					nextOp = zielOp ;
-					props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else if(zielOp < startOp) {
-					if ((nextOp + step) < zielOp) {
-						nextOp = zielOp ;
-						props["DONE"] = true ;
-					}
-					else {props["DONE"] = false ;}
-				}
-				else {
-					nextOp = zielOp ;
-					props["DONE"] = true ;
-				}
-			}
-			//Variablen aktualisieren
-			timeLeft -= diffTime ;
-			//Variablen in props speichern
-			props["timeLeft"]-= diffTime ;
-			props["lastTime"] = actTime ;
-			
-			//Styles anwenden:
-			if (nextWidth != undefined) {elem.style["width"] = nextWidth ;}
-			if (nextHeight != undefined) {elem.style["height"] = nextHeight;}
-			if (nextOp != undefined) {
-				elem.style["opacity"] = nextOp; 
-				if (CWeb.Browser.isIE()) {
-					elem.style["filter"] = "alpha(opacity=" + nextOp * 100 + ")" ;
-				}
-			}
-			if (nextLeft != undefined) {elem.style["left"] = nextLeft ;}
-			//Variablen im animQuery speichern
-			if (props["DONE"] == false) {
-				window.animQuery[i][1] = props ;
-			}
-			else if (props["DONE"] == true) {
-				//Callback ausführen !Nur wenn Vorhanden!
-				if (props["callback"]) {
-					props["callback"].apply() ;
-					window.animQuery[i][1]["callback"] = undefined ;
-				}
-				//Display setzen !Nur wenn vorhanden!
-				if (props["hide"]) {
-					if (props["hide"] == true) {
-						elem.style["display"] = "none" ;	
-					}
-				}
-				else if (props["show"]) {
-					if (props["show"] == true) {
-						elem.style["display"] = "block" ;
-					}
-				}
-				//Falls CSS-Style == "auto" --> Wieder auf "auto" setzen
-				if (props["autoWidth"] == "auto") {
-					elem.style["width"] = "auto" ;
-				}
-				if (props["autoHeight"] == "auto") {
-					elem.style["height"] = "auto" ;
-				}
-				if (props["autoLeft"] == "auto") {
-					elem.style["left"] = "auto" ;
-				}
-				
-				//Overflow-Wert wieder zurücksetzten
-				elem.style["overflow"] = props["oldOverflow"] ;
-				
-				if (window.animQuery[i]) {
-					if (window.animQuery[i][2]) {
-						if (window.animQuery[i][2][0]) {
-							window.animQuery[i][1] = window.animQuery[i][2].shift() ;
-							window.animQuery[i][1]["lastTime"] = CWeb.now() ;
-						}
-						else {
-							window.animQuery = window.animQuery.removeItem(i) ;
-							//Falls keine Animation mehr ausgeführt werden muss, AnimationsIntervall Stoppen!
-							if (window.animQuery.length == 0) {
-								CWeb().stopAnim() ;
-							}
-						}
-					}
-					else {
-						window.animQuery = window.animQuery.removeItem(i) ;
-						//Falls keine Animation mehr ausgeführt werden muss, AnimationsIntervall Stoppen!
-						if (window.animQuery.length == 0) {
-							CWeb().stopAnim() ;
-						}
-					}
-				}
-			}
-		}
-		
-	},
-	
-	enqueue: function(elem, props) {
-		for (var i in window.animQuery) {
-			if (window.animQuery[i][0] == elem) {
-				if (!window.animQuery[i][2]) {
-					window.animQuery[i][2] = new Array() ;
-				}
-				for (var j in props) {
-					//window.animQuery[i][2][window.animQuery[i][2].length][j] = props[j] ;
-					window.animQuery[i][2].push(props) ;
-				}
-				return window.animQuery ;
-			}
-		}
-		window.animQuery.push([elem, props]) ;
-	},
 	startAnim: function() {
-		if (!window.animInit) {
-			window.animQuery = [] ;
-			window.animStarted = false;
-			window.animIntervalID = null ;
-			window.intervalCount = 5;
-			window.animInit = "Done" ;
+		if (!cWeb.animInit) {
+			cWeb.animQuery = [] ;
+			cWeb.animStarted = false;
+			cWeb.animIntervalID = null ;
+			cWeb.intervalCount = 5;
+			cWeb.animInit = "Done" ;
 		}
-		if (window.animStarted == true) {return this; }	//Timer muss nicht mehr gestartet werden, wenn er schon gestartet wurde
-		window.animIntervalID = setInterval(this.doAnimation, window.intervalCount) ;
-		window.animStarted = true;
+		if (cWeb.animStarted == true) {return this; }	//Timer muss nicht mehr gestartet werden, wenn er schon gestartet wurde
+		//cWeb.animIntervalID = setInterval(this.doAnimation, cWeb.intervalCount) ;
+		cWeb.animStarted = true;
 		return this ;
 	},
 	stopAnim: function() {
-		clearInterval(window.animIntervalID) ;
-		window.animIntervalID = null ;
-		window.animStarted = false ;
+		clearInterval(cWeb.animIntervalID) ;
+		cWeb.animIntervalID = null ;
+		cWeb.animStarted = false ;
 	}
 	
 	
 }) ;
+CWeb.fx = {
+	enqueue: function(elem, props) {
+		//Überprüfen, ob das Element schon eingereit ist: Animation anhängen
+		for (var i = 0; i < cWeb.animQuery.length; i++) {
+			if (cWeb.animQuery[i][0] == elem) {
+				cWeb.animQuers[i][0].push(props) ;
+			}
+		}
+		//Optionen werden einfach angereit.
+		var i = cWeb.animQuery.push([]) - 1;
+		cWeb.animQuery[i].push(elem) ;
+		cWeb.animQuery[i][0].push(props) ;
+		return cWeb.animQuery ;
+		
+	},
+	dequeue: function(elem, animIndex) {
+		//Überprüfen, ob das Element noch aufgereit ist
+		for (var i = 0; i < cWeb.animQuery.length; i++) {
+			if (cWeb.animQuery[i][0] == elem) {
+				//Falls nur eine bestimmte Animation gelöscht werden soll
+				if (animIndex || animIndex == 0) {
+					//Überprüfen, ob diese Animation überhaupt noch eine eingereit ist
+					if (!cWeb.animQuery[i][0][animIndex]) {
+						//Falls animIndex = 0 ist, ganzes Element aus der Reihe löschen
+						if (animIndex == 0) {
+							cWeb.animQuery = cWeb.animQuery.removeItem(i) ;
+						}
+						return null ;
+					}
+					//Animation aus der Reihe löschen
+					cWeb.animQuery[i][0] = cWeb.animQuery[i][0].removeItem(animIndex) ;
+				}
+				//Ansonsten ganzes Element aus der Reihe löschen
+				else {
+					cWeb.animQuery = cWeb.animQuery.removeItem(i) ;
+				}
+			}
+		}
+		return cWeb.animQuery ;
+	},
+	getqueue: function(elem) {
+		//Überprüfen, ob das Element noch aufgereit ist
+		for (var i = 0; i < cWeb.animIndex.length; i++) {
+			if (cWeb.animQuery[i][0] == elem) {
+				//Überprüfen, ob noch Animationen existieren, ansonsten Element löschen und null zurückgeben
+				if (!cWeb.animQuery[i][0][0]) {
+					this.dequeue(elem) ;
+					return null ;
+				}
+				else {
+					return cWeb.animQuery[i][0][0] ;
+				}
+			}
+		}
+	},
+	getQueuedElemById: function(id) {
+		if (cWeb.amimQuery[i]) {
+			if (cWeb.animQuery[i][0]) {
+				return cWeb.animQuery[i][0] ;
+			}
+		}
+	},
+	queuelen: function() {
+		return cWeb.animQuery.length ;
+	},
+	animate: function(){
+		//Read Props
+		//Additional Properties in cWeb.animQuery[QueryIndex]["nocss"]
+		for (var i = 0; i < this.queuelen; i++) {
+			this.elem = this.getQueuedElemById(i) ;
+			this.opt = this.getqueue(this.elem)["nocss"] ;
+			this.cssprop = this.getqueue(this.elem) ;
+			this.cssprop["nocss"] = null ;
+			var self = this ;
+		}
+	}
+} ;
 CWeb.getCurCss = function(elem, css) {
 	if (elem.style[css]) {
 		return elem.style[css] ;	
