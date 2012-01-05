@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.2.9.5          */
+/* Version: 1.0.Animation    */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -97,7 +97,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '0.2.9.5',
+	Version: '1.0.Animation',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -656,7 +656,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			speed = "instant" ;
 		}
 		return this.each(this, function() {
-			if (this.hidden == false || !this.hidden) {
+			if (this.hided == false || !this.hided){
 				this.hideStyle = [] ;
 				this.hideStyle["width"] = CWeb.getCurCss(this, "width") ;
 				this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
@@ -665,14 +665,14 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, function() {
 				for (var i = 0; i < self.length; i++) {
 					if (self[i]) {
-						self[i].hidden = true ;
+						self[i].hided = true ;
 					}
 					if (callback) {
 						callback.apply() ;
 					}
 				}
 			}) ;
-			this.hidden = true;
+			this.hided = true;
 		}, [self, speed, callback]) ;
 	},
 	show: function(speed, callback) {
@@ -681,13 +681,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			speed = "instant" ;
 		}
 		return this.each(this, function() {
-			if (this.hidden == true) {
+			if (this.hided == true) {
 					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"], show: true}, speed, function() {
 						if (callback) {
 							callback.apply() ;
 						}
 						if (self[i]) {
-							self[i].hidden = false ;
+							self[i].hided = false ;
 						}
 					}) ;
 			}
@@ -769,11 +769,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 		}, [self, speed, callback]) ;
 	},
+	fadeTo: function(to, speed, callback) {
+		return this.animate({opacity: to}, speed, callback) ;
+	},
 	animate: function(cssprops, speed, callback) {
 		var props = [] ;
 		props["nocss"] = []
 		props["nocss"]["speed"] = speed ;
-		props["nocss"]["lastTime"] = CWeb.now() ;
 		props["nocss"]["callback"] = callback ;
 		
 		if (speed == "slow") {
@@ -802,9 +804,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}
 		
 		this.startAnim() ;
-		var self = this ;
 		return this.each(this, function() {
-			self.enqueue(this, props) ;
+			cWeb.fx.enqueue(this, props) ;
 		}, [props]) ;
 	},
 	startAnim: function() {
@@ -816,7 +817,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			cWeb.animInit = "Done" ;
 		}
 		if (cWeb.animStarted == true) {return this; }	//Timer muss nicht mehr gestartet werden, wenn er schon gestartet wurde
-		//cWeb.animIntervalID = setInterval(this.doAnimation, cWeb.intervalCount) ;
+		cWeb.animIntervalID = setInterval(cWeb.fx.animate, cWeb.intervalCount) ;
 		cWeb.animStarted = true;
 		return this ;
 	},
@@ -830,93 +831,211 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 }) ;
 CWeb.fx = {
 	enqueue: function(elem, props) {
-		//Überprüfen, ob das Element schon eingereit ist: Animation anhängen
-		for (var i = 0; i < cWeb.animQuery.length; i++) {
+		for (var i in cWeb.animQuery) {
 			if (cWeb.animQuery[i][0] == elem) {
-				cWeb.animQuers[i][0].push(props) ;
+				if (!cWeb.animQuery[i][2]) {
+					cWeb.animQuery[i][2] = new Array() ;
+				}
+				for (var j in props) {
+					cWeb.animQuery[i][2].push(props) ;
+				}
+				return cWeb.animQuery ;
 			}
 		}
-		//Optionen werden einfach angereit.
-		var i = cWeb.animQuery.push([]) - 1;
-		cWeb.animQuery[i].push(elem) ;
-		cWeb.animQuery[i][0].push(props) ;
-		return cWeb.animQuery ;
-		
+		cWeb.animQuery.push([elem, props]) ;
 	},
-	dequeue: function(elem, animIndex) {
+	dequeue: function(elem) {
 		//Überprüfen, ob das Element noch aufgereit ist
 		for (var i = 0; i < cWeb.animQuery.length; i++) {
 			if (cWeb.animQuery[i][0] == elem) {
-				//Falls nur eine bestimmte Animation gelöscht werden soll
-				if (animIndex || animIndex == 0) {
-					//Überprüfen, ob diese Animation überhaupt noch eine eingereit ist
-					if (!cWeb.animQuery[i][0][animIndex]) {
-						//Falls animIndex = 0 ist, ganzes Element aus der Reihe löschen
-						if (animIndex == 0) {
-							cWeb.animQuery = cWeb.animQuery.removeItem(i) ;
-						}
-						return null ;
-					}
-					//Animation aus der Reihe löschen
-					cWeb.animQuery[i][0] = cWeb.animQuery[i][0].removeItem(animIndex) ;
-				}
-				//Ansonsten ganzes Element aus der Reihe löschen
-				else {
-					cWeb.animQuery = cWeb.animQuery.removeItem(i) ;
-				}
+				cWeb.animQuery = cWeb.animQuery.removeItem(i) ;
 			}
 		}
 		return cWeb.animQuery ;
-	},
-	getqueue: function(elem) {
-		//Überprüfen, ob das Element noch aufgereit ist
-		for (var i = 0; i < cWeb.animIndex.length; i++) {
-			if (cWeb.animQuery[i][0] == elem) {
-				//Überprüfen, ob noch Animationen existieren, ansonsten Element löschen und null zurückgeben
-				if (!cWeb.animQuery[i][0][0]) {
-					this.dequeue(elem) ;
-					return null ;
-				}
-				else {
-					return cWeb.animQuery[i][0][0] ;
-				}
-			}
-		}
-	},
-	getQueuedElemById: function(id) {
-		if (cWeb.amimQuery[i]) {
-			if (cWeb.animQuery[i][0]) {
-				return cWeb.animQuery[i][0] ;
-			}
-		}
-	},
-	queuelen: function() {
-		return cWeb.animQuery.length ;
 	},
 	animate: function(){
 		//Read Props
 		//Additional Properties in cWeb.animQuery[QueryIndex]["nocss"]
-		for (var i = 0; i < this.queuelen; i++) {
-			this.elem = this.getQueuedElemById(i) ;
-			this.opt = this.getqueue(this.elem)["nocss"] ;
-			this.cssprop = this.getqueue(this.elem) ;
-			this.cssprop["nocss"] = null ;
-			var self = this ;
-		}
-		//Style setzten
-		this.css = function(elem, cssprop, cssvalue) {
+		for (var i = 0; i < cWeb.animQuery.length; i++) {
+			var self = cWeb.fx ;
+			self.queue = cWeb.animQuery[i] ;
+			self.elem = self.queue[0] ;
+			self.props = self.queue[1] ;
+			if (!self.elem) {
+				continue ;
+			}
+			if (!cWeb.animQuery[i]) {
+				continue ;
+			}
+			self.opt = self.props["nocss"] ;
+			self.cssprop = self.props ;
+			self.callback = self.opt["callback"] ;
 			
-			if (cssprop == "opacity") {
-				if (cWeb.Browser.isIE() && !elem.style.hasLayout) {
-					elem.style["zoom"] = 1 ;
+			//Overflow merken
+			self.elem.style["oldOverflow"] = self.elem.style["overflow"] ;
+			self.elem.style["overflow"] = "hidden" ;
+			
+			//Addidional Options
+			//show / hide
+			if (self.cssprop["show"]) {
+				//Überprüfen, ob ein alter Wert existiert
+				if (self.elem.style["oldDisplay"]) {
+					self.elem.style["display"] = self.elem.style["oldDisplay"] ;
 				}
-				if(cWeb.Browser.isIE()) {
-					elem.style["filter"] = "alpha(opacity=" + parseFloat(cssvalue) * 100 + ")" ;
+				else {
+					self.elem.style["display"] = "block" ;
 				}
 			}
 			
-			elem.style[cssprop] = cssvalue ;
+			for (j in self.cssprop) {
+				//Werte setzten, die noch nicht gesetzt wurden
+				if (j == "nocss" || j == "getItems" || j == "removeItem" || j == "hide" || j == "show") {
+					continue ;
+				}
+				if (typeof self.cssprop[j] === "number") {
+					self.cssprop[j] = String(self.cssprop[j]) ;
+				}
+				if (!self.opt.start) {
+					self.opt.start = [] ;
+				}
+				if (!self.opt.ziel) {
+					self.opt.ziel = [] ;
+				}
+				if (!self.opt.act) {
+					self.opt.act = [] ;
+				}
+				if (!self.opt.start[j]) {
+					self.opt.start[j] = parseFloat(cWeb.getCurCss(self.elem, j)) ;
+				}
+				if (!self.opt.act[j]) {
+					self.opt.act[j] = parseFloat(self.opt.start[j]) ;
+				}
+				if (!self.opt.ziel[j]) {
+					self.opt.ziel[j] = parseFloat(self.cssprop[j]) ;
+				}
+				if (!self.opt.lastTime) {
+					self.opt.lastTime = [] ;
+				}
+				if (!self.opt.actTime) {
+					self.opt.actTime = [] ;
+				}
+				if (!self.opt.lastTime[j]) {
+					self.opt.lastTime[j] = cWeb.now() ;
+				}
+				if (!self.opt.actTime[j]) {
+					self.opt.actTime[j] = self.opt.lastTime[j] ;
+				}
+				var einheit ;
+				if (j != "opacity") {
+					einheit = self.cssprop[j].replace(parseFloat(self.cssprop[j]), "")
+				}
+				self.css(j, self.step(j, "linear"), einheit) ;
+			}
+			cWeb.animQuery[i][1] = self.cssprop ;
+			cWeb.animQuery[i][1]["nocss"] = self.opt ;
+			if (self.opt.done == true) {
+				//Overflow zurücksetzen
+				self.elem.style["overflow"] = self.elem.style["oldOverflow"] ;
+				//Addidional Options...
+				//hide / show
+				if (self.cssprop["hide"]) {
+					//Alten Wert speichern, nur falls nicht vorhanden
+					if (!self.elem.style["oldDisplay"]) {
+						self.elem.style["oldDisplay"] = self.elem.style["display"] ;
+					}
+					self.elem.style["display"] = "none" ;
+				}
+				if (self.callback) {
+					if (typeof callback === "function") {
+						callback.apply() ;
+					}
+				}
+				if (cWeb.animQuery[i][2]) {
+					if (cWeb.animQuery[i][2][0]) {
+						cWeb.animQuery[i][1] = cWeb.animQuery[i][2].shift() ;
+					}
+					else {
+					cWeb.fx.dequeue(self.elem) ;
+					}
+				}
+				else {
+					cWeb.fx.dequeue(self.elem) ;
+				}
+			}
 		}
+	},
+	//Animationsschritt ausrechnen
+	step: function(cssprop, easing) {
+			/* No CSS - Properties
+			 * allTime
+			 * timeLeft
+			 * callback
+			 * last[cssprop]
+			 * start[cssprop]
+			 * ziel[cssprop]
+			 * act[cssprop]
+			 * actTime[cssprop]
+			 * lastTime[cssprop]
+			 */
+			this.opt.lastTime[cssprop] = this.opt.actTime[cssprop] ;
+			this.opt.actTime[cssprop] = cWeb.now() + 1;
+			var timeDiff = this.opt.lastTime[cssprop] - this.opt.actTime[cssprop] ;
+			var animPos = this.opt.allTime * timeDiff ;
+			var animDiff = parseFloat(this.opt.ziel[cssprop]) - parseFloat(this.opt.start[cssprop]) ;
+			var step = animDiff / this.opt.allTime * timeDiff ;
+			if (!cWeb.easing[easing]) {
+				easing = "linear" ;
+			}
+			step = cWeb.easing[easing](step, animPos) ;
+			if (this.opt.ziel[cssprop] < this.opt.start[cssprop]) {
+				this.opt.act[cssprop] = parseFloat(this.opt.act[cssprop]) - step ; 
+				if (this.opt.act[cssprop] <= this.opt.ziel[cssprop]) {
+					this.opt.act[cssprop] = this.opt.ziel[cssprop] ;
+					this.opt.done = true ;
+				}
+				else {
+					this.opt.done = false ;
+				}
+			}
+			else if (this.opt.ziel[cssprop] > this.opt.start[cssprop]) {
+				this.opt.act[cssprop] = parseFloat(this.opt.act[cssprop]) - step ;
+				if (this.opt.act[cssprop] >= this.opt.ziel[cssprop]) {
+					this.opt.act[cssprop] = this.opt.ziel[cssprop] ;
+					this.opt.done = true ;
+				}
+				else {
+					this.opt.done = false ;
+				}
+			}
+			else {
+				this.opt.act[cssprop] = this.opt.ziel[cssprop] ;
+				this.opt.down = false ;
+			}
+			return this.opt.act[cssprop];
+	},
+	//Style setzten
+	css: function(cssprop, cssvalue, einheit) {
+			if (cssprop == "opacity") {
+				if (cWeb.Browser.isIE() && !this.elem.style.hasLayout) {
+					this.elem.style["zoom"] = 1 ;
+				}
+				if(cWeb.Browser.isIE()) {
+					this.elem.style["filter"] = "alpha(opacity=" + parseFloat(cssvalue) * 100 + ")" ;
+				}
+			}
+			if (!einheit || einheit == "") {
+				einheit = "px" ;
+			}
+			if (cssprop != "opacity") {
+				//Einheit setzen
+				cssvalue = String(cssvalue) + einheit ;
+			}
+			this.elem.style[cssprop] = cssvalue ;
+	}
+} ;
+CWeb.easing = {
+	linear: function(step, animPos) {
+		return step ;
 	}
 } ;
 CWeb.getCurCss = function(elem, css) {
