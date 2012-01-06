@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.3.1            */
+/* Version: 0.3.2            */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -13,6 +13,7 @@ var CWeb = (function() {
 	RegexpID = /^#\w*:*\w*$/,
 	RegexpClass = /^\.\w*:*\w*$/,
 	RegexpHTML = /^<\s*\w{1,}\s*(\w|\W)*(\/\s*>$|>(\w|\W){1,}\s*<\s*\/\w{1,}>)|>:*\w*$/,
+	RegexpAll = /^\s*:*\w*$/,
 	
 	
 	_$ = window.$,
@@ -26,7 +27,7 @@ CWeb.fn = CWeb.prototype = {
 		if (!context) {
 			context = document.body ;	
 		}
-		elems = this.selecter(selector) ;
+		elems = this.selecter(selector, context) ;
 		for (var i = 0; i < elems.length; i++) {
 			this[i] = elems[i] ;
 		}
@@ -34,7 +35,7 @@ CWeb.fn = CWeb.prototype = {
 		this.context = context ;
 	 	return this ;
 	},
-	Version: '0.3.1',
+	Version: '0.3.2',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -130,7 +131,7 @@ CWeb.fn = CWeb.prototype = {
 	},
 	addClass: function(name) {
 		return this.each(this, function() {
-			this.className = this.className ? " " : "" + this.className ;
+			this.className = this.className ? " " + name : "" + name ;
 		}, [name]) ;
 		return this.attr("class", name) ;
 	},
@@ -190,7 +191,7 @@ CWeb.fn = CWeb.prototype = {
 	manipDom: function(args, fn){
 		var a = [] ;
 		for (var i = 0; i < args.length; i++) {
-			a[i] = this.selecter(args[i]) ;
+			a[i] = this.selecter(args[i])[0] ;
 		}
 		var self = this ;
 		return this.each(this, function() {
@@ -215,7 +216,7 @@ CWeb.fn = CWeb.prototype = {
 		return DomObj ;
 	},
 	wrap: function(a) {
-		var Elem = this.selecter(a) ;
+		var Elem = this.selecter(a)[0] ;
 		return this.each(this, function() {
 			Elem.appendChild(this) ;
 		}, [Elem]) ;
@@ -226,7 +227,7 @@ CWeb.fn = CWeb.prototype = {
 		}) ;
 	},
 	appendTo: function(target) {
-		elem = this.selecter(target) ;
+		elem = this.selecter(target)[0] ;
 		return this.each(this, function() {
 			elem.appendChild(this) ;
 		}, [elem]) ;
@@ -264,15 +265,17 @@ CWeb.fn = CWeb.prototype = {
 		Plugin.setAttribute("src", this.plugin_file) ;
 		this[0].parentNode.removeChild(this[0]) ;
 		return CWeb(document.body).append(Plugin) ;
+	},
+	ready: function(fn) {
+		if (this[0] == document) {
+			cWeb.ready.bindReady(fn) ;
+		}
+		return this ;
 	}
 	
 }
 //InitCWeb Prototype = CWeb Prototype
 CWeb.fn.InitCWeb.prototype = CWeb.fn ;
-
-CWeb.now = function() {
-		return (new Date()).getTime() ;	
-	}
 CWeb.merge = function(obj, props) {
 	for (var prop in props ) {
 		obj[prop] = props[prop] ;
@@ -282,7 +285,46 @@ CWeb.merge = function(obj, props) {
 CWeb.extend = function(obj, props) {
 	return this.merge(obj, props) ;
 }
-
+CWeb.ready = {
+	readyList: [],
+	addReadyList: function(fn) {
+		return this.readyList.push(fn) ;
+	},
+	readyAttached: false,
+	isReady: false,
+	listFired: false,
+	readyFunc: function(event) {
+		cWeb.ready.isReady = true ;
+		if (document.readyState == "complete") {
+			cWeb.ready.fireReady() ;
+		}
+	},
+	bindReady: function(fn) {
+		if (this.readyAttached == false) {
+			cWeb(document).bindEvent("readystatechange", cWeb.ready.readyFunc) ;
+			if (document.body.addEventListener) {
+				window.addEventListener("load", cWeb.ready.readyFunc, false) ;
+			}
+			else {
+				window.attachEvent("onload", cWeb.ready.readyFunc) ;
+			}
+			this.readyAttached = true ;
+		}
+		if (this.listFired) {
+			fn.apply() ;
+		}
+		this.addReadyList(fn) ;
+	},
+	fireReady: function() {
+		if (!this.listFired) {
+			this.listFired = true ;
+			for (var i = 0; i < this.readyList.length; i++) {	
+				this.readyList[i].apply() ;
+			}
+		}
+		this.listFired = true ;
+	}
+} ;
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	Stack: function(action, obj, caller) {
 		//caller = obj, falls caller nicht existiert.
@@ -301,12 +343,15 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			return caller ;
 		}
 	},
-	selecter: function(selector) {
+	selecter: function(selector, context) {
 		var elem, id, Class, elems, _selector ;
 		elem = [] ;
 		//Selector für cssSelecter() speichern
 		_selector = selector ;
 		//Is String?
+		if (!context) {
+			context = document.body ;
+		}
 		if (typeof selector === "string") {
 			//Css-Selectoren entfernen
 			var Remove = /:(\w*|\W*)$/ ;
@@ -333,11 +378,25 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				elem.push(this.createDomObj(selector)) ;
 			}
 			//HTML-Tag
-			else if (document.getElementsByTagName(selector)) {
+			else if (document.getElementsByTagName(selector).length != 0) {
 				elems = document.getElementsByTagName(selector) ;
 				for (var i = 0; i < elems.length; i++) {
 					elem.push(elems[i]) ;
 				}
+			}
+			//Kein Inhalt, alles auswählen
+			else if (RegexpAll.test(selector)) {
+				elem.push(document.body) ;;
+				function getAllChildren(elem, elems) {
+					for (var i = 0; i < elem.childNodes.length; i++) {
+						elems.push(elem.childNodes[i]) ;
+						if (elem.childNodes[i].hasChildNodes) {
+							getAllChildren(elem.childNodes[i], elems) ;
+						}
+					}
+					return elems ;
+				}
+				elem = getAllChildren(document.body, elem) ;
 			}
 			//Einfacher Text, wenn obiges nicht zutrifft
 			else {
@@ -1100,6 +1159,9 @@ CWeb.removeItem = function(arr, index) {
 	arr = arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 	return arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 }
+CWeb.now = function() {
+		return (new Date()).getTime() ;	
+} ;
 //Array Prototype um .removeItem erweitern ;
 Array.prototype.removeItem = function(index) {
 		return this.slice(0, index).concat(this.slice(index + 1)) ;

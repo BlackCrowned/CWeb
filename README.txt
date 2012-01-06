@@ -203,4 +203,9 @@
  ***cWeb.fx.step(): Fehler beseitigt
  **Added:
  ***Weitere Selectoren: ":hover"
+ *Version 0.3.2 FINAL
+ **Added:
+ ***$(document).ready(function):
+ ***Selector: "", wählt alle Elemente des body's aus. Wurde ein Context angegeben, werden alle Elemente des Contextes gewählt.
+ **Verbesserungen
  */
