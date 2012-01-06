@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 3.0              */
+/* Version: 0.3.1            */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -10,11 +10,11 @@ var CWeb = (function() {
 		return new CWeb.fn.InitCWeb(selector, context) ;
 	},
 	
-	RegexpID = /^#\w*$/,
-	RegexpClass = /^\.\w*$/,
-	RegexpHTML = /^<\s*\w{1,}\s*(\w|\W)*(\/\s*>$|>(\w|\W){1,}\s*<\s*\/\w{1,}>)|>$/,
+	RegexpID = /^#\w*:*\w*$/,
+	RegexpClass = /^\.\w*:*\w*$/,
+	RegexpHTML = /^<\s*\w{1,}\s*(\w|\W)*(\/\s*>$|>(\w|\W){1,}\s*<\s*\/\w{1,}>)|>:*\w*$/,
 	
-	RegexpHoverSelector = /:hover\W*$/,
+	
 	_$ = window.$,
 	_CWeb = window.CWeb ;
 	
@@ -22,82 +22,19 @@ CWeb.fn = CWeb.prototype = {
 	
 	constructor: CWeb,
 	InitCWeb: function(selector, context) {
-		var elem, id ;
+		var elems ;
 		if (!context) {
 			context = document.body ;	
 		}
-		//Is String?
-		if (typeof selector === "string") {
-			//Body
-			if (selector == "body") {
-				this[0] = document.body ;
-				this.context = context ;
-				this.length = 1 ;	
-			}
-			//ID
-			else if (RegexpID.test(selector)) {
-				id = selector.slice(1) ;
-				elem = document.getElementById(id) ;
-				this[0] = elem ;
-				this.context = context ;
-				this.length = 1 ;
-			}
-			//Class
-			else if (RegexpClass.test(selector)) {
-				Class = selector.slice(1) ;
-				elems = document.getElementsByClassName(Class) ;
-				for (i = 0; i < elems.lenght; i++) {
-					this[i] = elems[i] ;
-					this.length = i + 1 ;	
-				}
-				this.context = context ;
-			}
-			//HTML
-			else if (RegexpHTML.test(selector)) {
-				elem = this.createDomObj(selector) ;
-				this[0] = context.appendChild(elem) ;
-				this.context = context ;
-				this.length = 1 ;
-			}
-			//Einfacher Text, wenn Obiges nicht zutrifft
-			else {
-				elem = this.createDomObj("<p>" + selector + "</p>") ;
-				this[0] = context.appendChild(elem) ;
-				this.context = context ;
-				this.plugin_file = selector ;
-				this.length = 1 ;	
-			}
+		elems = this.selecter(selector) ;
+		for (var i = 0; i < elems.length; i++) {
+			this[i] = elems[i] ;
 		}
-		//Is CWeb Object
-		if (selector) {
-			if (selector.Rev) {
-				return selector ;	
-			}
-		}
-		//Is DOMElement
-		try{
-			if (selector instanceof Node) {
-				this[0] = selector ;
-				this.length = 1 ;
-				this.context = context ;
-	
-			}
-		}
-		catch(e) {
-			try {
-				if (selector.nodeType) {
-					this[0] = selector ;
-					this.length = 1 ;
-					this.context = context ;
-				}
-			}
-			catch(ex) {
-				
-			}
-		}
+		this.length = elems.length ;
+		this.context = context ;
 	 	return this ;
 	},
-	Version: '3.0',
+	Version: '0.3.1',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -365,55 +302,85 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		}
 	},
 	selecter: function(selector) {
-		var elem, id, Class ;
+		var elem, id, Class, elems, _selector ;
+		elem = [] ;
+		//Selector für cssSelecter() speichern
+		_selector = selector ;
 		//Is String?
 		if (typeof selector === "string") {
+			//Css-Selectoren entfernen
+			var Remove = /:(\w*|\W*)$/ ;
+			selector = selector.replace(Remove, "") ;
 			//Body
 			if (selector == "body") {
-				elem = document.body ;
+				elem.push(document.body) ;
 			}
 			//ID
 			else if (RegexpID.test(selector)) {
 				id = selector.slice(1) ;
-				elem = document.getElementById(id) ;
+				elem.push(document.getElementById(id)) ;
 			}
 			//Class
 			else if (RegexpClass.test(selector)) {
 				Class = selector.slice(1) ;
-				elem = document.getElementsByClassName(Class) ;
+				elems = document.getElementsByClassName(Class) ;
+				for (var i = 0; i < elems.length; i++) {
+					elem.push(elems[i]) ;
+				}
 			}
 			//HTML
 			else if (RegexpHTML.test(selector)) {
-				elem = this.createDomObj(selector) ;
+				elem.push(this.createDomObj(selector)) ;
+			}
+			//HTML-Tag
+			else if (document.getElementsByTagName(selector)) {
+				elems = document.getElementsByTagName(selector) ;
+				for (var i = 0; i < elems.length; i++) {
+					elem.push(elems[i]) ;
+				}
 			}
 			//Einfacher Text, wenn obiges nicht zutrifft
 			else {
-				elem = this.createDomObj(selector) ;
+				elem.push(this.createDomObj(selector)) ;	
 			}
 		}
 		try{
 			if (selector instanceof Node) {
-				elem = selector
+				elem.push(selector) ;
 			}
 		}
 		catch(e) {
 			if (selector.nodeType) {
-				elem = selector
+				elem.push(selector) ;
 			}
 		}
-	 	return elem ;
+		elem = this.cssSelecter(_selector, elem) ;
+	 	return elem; 
 	},
-	cssSelecter: function(selector, elem) {
-		//CWeb-Object auf dem Stack speichern
-		this.Stack("push", this) ;
-		
+	RegexpHoverSelector: /:hover\W*$/,
+	RegexpParentSelector: /:parent\W*$/,
+	cssSelecter: function(selector, elems) {
 		//Überprüfen, ob der Selector auch ein String ist
 		if (typeof selector === "string") {
 			//CssSelectoren der Reihe nach testen, es kann immer nur ein Selector gewählt werden!
-			if (RegexpHoverSelector.test(selector)) {
+			if (this.RegexpHoverSelector.test(selector)) {
+				
+				for (var i = 0; i < elems.length; i++) {
+					if (elems[i].isMouseOver) {
+						//Element bleibt drin
+					}
+					else {
+						//Element wird gelöscht!
+						elems = elems.removeItem(i) ;
+						i-- ;
+					}
+				}
+			}
+			else if (this.RegexpParentSelector.test(selector)) {
 				
 			}
 		}
+		return elems ;
 	},
 	Data: function(action, data, trace, id) {
 		var ret = this ;
@@ -557,6 +524,13 @@ CWeb.Event = {
 		}
 		else {
 			target = event.srcElement ;	
+			event.target = event.scrElement ;
+		}
+		if (type == "mouseover") {
+			target.isMouseOver = true ;
+		}
+		else if (type == "mouseout"){
+			target.isMouseOver = false ;
 		}
 		var firingList = cWeb.Event.firingList ;
 		if (target && target.eid) {
@@ -1041,7 +1015,7 @@ CWeb.fx = {
 			}
 			else {
 				this.opt.act[cssprop] = this.opt.ziel[cssprop] ;
-				this.opt.down = false ;
+				this.opt.done = true ;
 			}
 			this.opt.timeLeft -= timeDiff ;
 			return this.opt.act[cssprop];

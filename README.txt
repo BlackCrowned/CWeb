@@ -194,4 +194,13 @@
  *Version 0.3 FINAL
  **Complete rewrittet Animation-Handling:
  ***Supports Opacity / Width / Height Animations
+ *Version 0.3.1 FINAL
+ **Improved:
+ ***Selection: Less Code: Only ONE Function for it
+ ***.selecter(): Für alle Selection aufgaben verwendet, enthält cssSelecter...
+ ***.cssSelecter(): Eigentlich neu geschrieben
+ **Fixed:
+ ***cWeb.fx.step(): Fehler beseitigt
+ **Added:
+ ***Weitere Selectoren: ":hover"
  */
