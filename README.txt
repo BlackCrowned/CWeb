@@ -189,6 +189,9 @@
  ***.unbindEvent(type, handler)
  **Fixed:
  ***Animationen
- *Version 0.2.9.4 FINAL
+ *Version 0.2.9.5 FINAL
  **FIXES
+ *Version 0.3 FINAL
+ **Complete rewrittet Animation-Handling:
+ ***Supports Opacity / Width / Height Animations
  */

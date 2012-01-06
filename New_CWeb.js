@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 2.0.Animation    */
+/* Version: 3.0              */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -97,7 +97,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '2.0.Animation',
+	Version: '3.0',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
