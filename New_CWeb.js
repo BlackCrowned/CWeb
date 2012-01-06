@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 1.0.Animation    */
+/* Version: 2.0.Animation    */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -97,7 +97,7 @@ CWeb.fn = CWeb.prototype = {
 		}
 	 	return this ;
 	},
-	Version: '1.0.Animation',
+	Version: '2.0.Animation',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -135,11 +135,11 @@ CWeb.fn = CWeb.prototype = {
 				if (this.style) {
 					if (typeof type === "object") {
 						for (j in type) {
-							this.style[j] = type[j] ;	
+							this.style[cWeb.toJsStyle(j)] = type[j] ;	
 						}
 					}
 					else {
-						this.style[type] = cssprop ;
+						this.style[cWeb.toJsStyle(type)] = cssprop ;
 					}
 				}
 			}, [type, cssprop]) ;
@@ -149,11 +149,11 @@ CWeb.fn = CWeb.prototype = {
 				if (this.style) {
 					if (typeof cssprop === "object") {
 						for (j in cssprop) {
-							this.style[j] = cssprop[j] ;	
+							this.style[cWeb.toJsStyle(j)] = cssprop[j] ;	
 						}
 					}
 					else {
-						this.style[cssprop] = cssvalue ;	
+						this.style[cWeb.toJsStyle(cssprop)] = cssvalue ;	
 					}
 				}
 			}, [cssprop, cssvalue]) ;
@@ -192,9 +192,15 @@ CWeb.fn = CWeb.prototype = {
 		}
 	},
 	addClass: function(name) {
+		return this.each(this, function() {
+			this.className = this.className ? " " : "" + this.className ;
+		}, [name]) ;
 		return this.attr("class", name) ;
 	},
 	removeClass: function(name) {
+		return this.each(this, function() {
+			this.className = this.className.replace(name ,"") ;
+		}, [name]) ;
 		return this.attr("remove", "class") ;
 	},
 	end: function() {
@@ -650,7 +656,7 @@ CWeb.easing = {
 	}
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
-	hide: function(speed, callback) {
+	hide: function(speed, easing, callback) {
 		var self = this ;
 		if (!speed) {
 			speed = "instant" ;
@@ -662,7 +668,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.hideStyle["height"] = CWeb.getCurCss(this, "height") ;
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
 			}
-			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, function() {
+			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, easing, function() {
 				for (var i = 0; i < self.length; i++) {
 					if (self[i]) {
 						self[i].hided = true ;
@@ -673,16 +679,16 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				}
 			}) ;
 			this.hided = true;
-		}, [self, speed, callback]) ;
+		}, [self, speed, easing, callback]) ;
 	},
-	show: function(speed, callback) {
+	show: function(speed, easing, callback) {
 		var self = this ;
 		if (!speed) {
 			speed = "instant" ;
 		}
 		return this.each(this, function() {
 			if (this.hided == true) {
-					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"], show: true}, speed, function() {
+					CWeb(this).animate({width: this.hideStyle["width"], height: this.hideStyle["height"], opacity: this.hideStyle["opacity"], show: true}, speed, easing, function() {
 						if (callback) {
 							callback.apply() ;
 						}
@@ -691,15 +697,15 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 						}
 					}) ;
 			}
-		}, [self, speed, callback]) ;
+		}, [self, speed, easing, callback]) ;
 	},
-	fadeOut: function(speed, callback) {
+	fadeOut: function(speed, easing, callback) {
 		var self = this ;
 		return this.each(this, function() {
 			if (this.faded == false || !this.faded) {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
 			}
-			CWeb(this).animate({opacity: "0", hide: true}, speed,function() {
+			CWeb(this).animate({opacity: "0", hide: true}, speed, easing, function() {
 				for (var i = 0; i < self.length; i++) {
 					if (self[i]) {
 						self[i].faded = true ;
@@ -710,9 +716,9 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				}
 			}) ;
 			this.faded = true ;
-		}, [self, speed, callback]) ;
+		}, [self, speed, easing, callback]) ;
 	},
-	fadeIn: function(speed, callback) {
+	fadeIn: function(speed, easing, callback) {
 		var self = this ;
 		return this.each(this, function() {
 			if (!this.faded) {
@@ -724,7 +730,7 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				if (!this.fadeStyle) {
 					this.fadeStyle = 1 ;	
 				}
-				CWeb(this).animate({opacity: this.fadeStyle, show: true}, speed, function() {
+				CWeb(this).animate({opacity: this.fadeStyle, show: true}, speed, easing, function() {
 						if (callback) {
 							callback.apply() ;
 						}
@@ -733,15 +739,15 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 						}
 					}) ;
 			}
-		}, [self, speed, callback]) ;
+		}, [self, speed, easing, callback]) ;
 	},
-	slideUp: function(speed, callback) {
+	slideUp: function(speed, easing, callback) {
 		var self = this ;
 		return this.each(this, function() {
 			if (this.slided == false || !this.slided) {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
 			}
-			CWeb(this).animate({height: "0px", hide: true}, speed, function() {
+			CWeb(this).animate({height: "0px", hide: true}, speed, easing, function() {
 				for (var i = 0; i < self.length; i++) {
 					if (self[i]) {
 						self[i].slided = true ;
@@ -752,13 +758,13 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				}
 			}) ;
 				this.slided = true ;
-		}, [self, speed, callback]) ;
+		}, [self, speed, easing, callback]) ;
 		},
-	slideDown: function(speed, callback) {
+	slideDown: function(speed, easing, callback) {
 		var self = this ;
 		return this.each(this, function() {
 			if (this.slided == true) {
-				CWeb(this).animate({height: this.slideStyle, show: true}, speed, function() {
+				CWeb(this).animate({height: this.slideStyle, show: true}, speed, easing, function() {
 						if (callback) {
 							callback.apply() ;
 						}
@@ -767,17 +773,32 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 						}
 					}) ;
 			}
-		}, [self, speed, callback]) ;
+			this.slided = false ;
+		}, [self, speed, easing, callback]) ;
 	},
-	fadeTo: function(to, speed, callback) {
-		return this.animate({opacity: to}, speed, callback) ;
+	fadeTo: function(to, speed, easing, callback) {
+		return this.animate({opacity: to}, speed, easing, callback) ;
 	},
-	animate: function(cssprops, speed, callback) {
+	animate: function(cssprops, speed, easing, callback) {
 		var props = [] ;
+		var opts = [] ;
+		if (typeof easing === "string") {
+			opts.easing = easing ;
+		}
+		if (typeof callback === "function") {
+			opts.callback = callback ;
+		}
+		if (typeof easing === "function") {
+			opts.callback = easing ;
+		}
+		if (typeof speed === "function") {
+			opts.callback = speed ;
+		}
+		opts.speed = speed ;
 		props["nocss"] = []
-		props["nocss"]["speed"] = speed ;
-		props["nocss"]["callback"] = callback ;
-		
+		props["nocss"]["speed"] = opts.speed ;
+		props["nocss"]["callback"] = opts.callback ;
+		props["nocss"]["easing"] = opts.easing ;
 		if (speed == "slow") {
 			props["nocss"]["timeLeft"] = 750 ;
 			props["nocss"]["allTime"] = 750 ;	
@@ -880,13 +901,23 @@ CWeb.fx = {
 			if (self.cssprop["show"]) {
 				//Überprüfen, ob ein alter Wert existiert
 				if (self.elem.style["oldDisplay"]) {
-					self.elem.style["display"] = self.elem.style["oldDisplay"] ;
+					if (self.elem.style["oldDisplay"] != "hidden" || self.elem.style["oldDisplay"] != "none") {
+						self.elem.style["oldDisplay"] = null ;
+						self.elem.style["display"] = self.elem.style["oldDisplay"] ;
+					}
+					else {
+						self.elem.style["oldDisplay"] = null ;
+						self.elem.style["display"] = "block" ;
+					}
 				}
 				else {
+					self.elem.style["oldDisplay"] = null ;
 					self.elem.style["display"] = "block" ;
 				}
 			}
-			
+			if (self.elem.style["display"] == "none" && !self.cssprop["hide"]) {
+				self.elem.style["display"] = "block" ;
+			}
 			for (j in self.cssprop) {
 				//Werte setzten, die noch nicht gesetzt wurden
 				if (j == "nocss" || j == "getItems" || j == "removeItem" || j == "hide" || j == "show") {
@@ -929,7 +960,7 @@ CWeb.fx = {
 				if (j != "opacity") {
 					einheit = self.cssprop[j].replace(parseFloat(self.cssprop[j]), "")
 				}
-				self.css(j, self.step(j, "linear"), einheit) ;
+				self.css(j, self.step(j, self.opt.easing), einheit) ;
 			}
 			cWeb.animQuery[i][1] = self.cssprop ;
 			cWeb.animQuery[i][1]["nocss"] = self.opt ;
@@ -977,14 +1008,15 @@ CWeb.fx = {
 			 * actTime[cssprop]
 			 * lastTime[cssprop]
 			 */
+			 
 			this.opt.lastTime[cssprop] = this.opt.actTime[cssprop] ;
 			this.opt.actTime[cssprop] = cWeb.now() + 1;
 			var timeDiff = this.opt.lastTime[cssprop] - this.opt.actTime[cssprop] ;
-			var animPos = this.opt.allTime * timeDiff ;
+			var animPos = this.opt.allTime / this.opt.timeLeft ;
 			var animDiff = parseFloat(this.opt.ziel[cssprop]) - parseFloat(this.opt.start[cssprop]) ;
 			var step = animDiff / this.opt.allTime * timeDiff ;
 			if (!cWeb.easing[easing]) {
-				easing = "linear" ;
+				easing = "swing" ;
 			}
 			step = cWeb.easing[easing](step, animPos) ;
 			if (this.opt.ziel[cssprop] < this.opt.start[cssprop]) {
@@ -1011,6 +1043,7 @@ CWeb.fx = {
 				this.opt.act[cssprop] = this.opt.ziel[cssprop] ;
 				this.opt.down = false ;
 			}
+			this.opt.timeLeft -= timeDiff ;
 			return this.opt.act[cssprop];
 	},
 	//Style setzten
@@ -1036,6 +1069,9 @@ CWeb.fx = {
 CWeb.easing = {
 	linear: function(step, animPos) {
 		return step ;
+	},
+	swing: function(step, animPos) {
+		return step / animPos * 0.5;
 	}
 } ;
 CWeb.getCurCss = function(elem, css) {
@@ -1073,6 +1109,19 @@ CWeb.getCurCss = function(elem, css) {
 		return ret ;
 	}
 }
+CWeb.toJsStyle = function(style) {
+	var Convert = /\-(\w)/g ;
+	return style.replace(Convert, function(match) {
+		match = match.replace("-", "") ;
+		return match.toUpperCase() ;
+	}) ;
+} ;
+CWeb.toCssStyle = function(style) {
+	var Convert = /[A-Z]/g ;
+	return style.replace(Convert, function(match) {
+		return "-" + match.toLowerCase() ;
+	}) ;
+} ;
 CWeb.removeItem = function(arr, index) {
 	arr = arr.slice(0, index).concat(arr.slice(index + 1 )) ;
 	return arr.slice(0, index).concat(arr.slice(index + 1 )) ;
