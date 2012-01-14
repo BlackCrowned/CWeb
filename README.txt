@@ -208,4 +208,20 @@
  ***$(document).ready(function):
  ***Selector: "", wählt alle Elemente des body's aus. Wurde ein Context angegeben, werden alle Elemente des Contextes gewählt.
  **Verbesserungen
+ *Version 0.3.3 FINAL
+ **Verbessert:
+ ***.addClass(name): Funktioniert richtig!
+ ***.createDomObj(HTML[, context]): Erstelltes Element wird an den context angehängt
+ ***.inner(selector)
+ ***Selectoren:
+ ****HTML-String, an .createDomObj(HTML[, context]) angepasst.
+ ****CssSelector
+ ***Event-Handler
+ ***Überschüssige easing Funktion entfernt
+ ***.hide / show, ...: Verbesserungen
+ ***.animate
+ ***cWeb.getCurCss(elem, cssprop)
+ **Added:
+ ***cWeb Object als Selector
+ ****einzelnes HTML-Tag
  */

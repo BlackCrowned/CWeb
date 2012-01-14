@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.3.2            */
+/* Version: 0.3.3            */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -12,8 +12,9 @@ var CWeb = (function() {
 	
 	RegexpID = /^#\w*:*\w*$/,
 	RegexpClass = /^\.\w*:*\w*$/,
-	RegexpHTML = /^<\s*\w{1,}\s*(\w|\W)*(\/\s*>$|>(\w|\W){1,}\s*<\s*\/\w{1,}>)|>:*\w*$/,
-	RegexpAll = /^\s*:*\w*$/,
+	RegexpHTMLTag = /^<\s*\w+\s*>$/,
+	RegexpHTML = /^<\s*\w+\s*(\w|\W)*(\/\s*>$|>(\w|\W)+\s*<\s*\/\w+>)|>:*\w*$/,
+	RegexpAll = /^\s+:*\w*$/,
 	
 	
 	_$ = window.$,
@@ -35,7 +36,7 @@ CWeb.fn = CWeb.prototype = {
 		this.context = context ;
 	 	return this ;
 	},
-	Version: '0.3.2',
+	Version: '0.3.3',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -128,10 +129,11 @@ CWeb.fn = CWeb.prototype = {
 			}
 			return Style ;
 		}
+		return this ;
 	},
 	addClass: function(name) {
 		return this.each(this, function() {
-			this.className = this.className ? " " + name : "" + name ;
+			this.className = this.className != ""? this.className + " " + name : this.className + name ;
 		}, [name]) ;
 		return this.attr("class", name) ;
 	},
@@ -209,10 +211,13 @@ CWeb.fn = CWeb.prototype = {
 		}, [a, self]) ;
 		
 	},
-	createDomObj: function(HTML) {
+	createDomObj: function(HTML, context) {
+		if (!context) {
+			context = document.body ;
+		}
 		var DomObj = document.createElement("div") ;
 		DomObj.innerHTML = HTML ;
-		
+		context.appendChild(DomObj) ;
 		return DomObj ;
 	},
 	wrap: function(a) {
@@ -253,11 +258,13 @@ CWeb.fn = CWeb.prototype = {
 		}) ;
 	},
 	inner: function(selector) {
-		var elem = this.selecter(selector) ;
+		var elems = this.selecter(selector) ;
 		return this.each(this, function() {
 			this.innerHTML = "" ;
-			this.appendChild(elem) ;
-		}, [elem]) ;
+			for (var i = 0; i < elems.length; i++) {
+				this.appendChild(elems[i]) ;
+			}
+		}, [elems]) ;
 	},
 	includePlugin: function() {
 		Plugin = document.createElement("script") ;
@@ -348,10 +355,16 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		elem = [] ;
 		//Selector für cssSelecter() speichern
 		_selector = selector ;
-		//Is String?
 		if (!context) {
 			context = document.body ;
 		}
+		//CWeb Objekt
+		if (typeof selector === "object" && selector.cWeb) {
+			for (var i = 0; i < selector.length; i++) {
+				elem.push(selector[i]) ;
+			}
+		}
+		//Is String?
 		if (typeof selector === "string") {
 			//Css-Selectoren entfernen
 			var Remove = /:(\w*|\W*)$/ ;
@@ -373,9 +386,15 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 					elem.push(elems[i]) ;
 				}
 			}
+			//Einzelnes HTML-Tag
+			else if(RegexpHTMLTag.test(selector)) {
+				var element = document.createElement(selector) ;
+				context.appendChild(element) ;
+				elem.push(element) ;
+			}
 			//HTML
 			else if (RegexpHTML.test(selector)) {
-				elem.push(this.createDomObj(selector)) ;
+				elem.push(this.createDomObj(selector, context)) ;
 			}
 			//HTML-Tag
 			else if (document.getElementsByTagName(selector).length != 0) {
@@ -414,6 +433,20 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 			}
 		}
 		elem = this.cssSelecter(_selector, elem) ;
+		for (var i = 0; i < elem.length; i++) {
+			try{
+			if (!elem[i] instanceof Node) {
+				elem = elem.removeItem(i) ;
+				i-- ;
+			}
+		}
+		catch(e) {
+			if (!elem[i].nodeType) {
+				elem = elem.removeItem(i) ;
+				i-- ;
+			}
+		}
+		}
 	 	return elem; 
 	},
 	RegexpHoverSelector: /:hover\W*$/,
@@ -561,7 +594,7 @@ CWeb.Event = {
 			return;
 		}
 		for (var i in cWeb.Event.firingList[elem.eid][type]) {
-			if (cWeb.Event.firingList[elem.eid][type][i][handler]) {
+			if (cWeb.Event.firingList[elem.eid][type][i]["handler"] == handler) {
 				cWeb.Event.firingList[elem.eid][type] = cWeb.Event.firingList[elem.eid][type].removeItem(i) ;
 			}
 		}
@@ -671,23 +704,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		return this.bindEvent("mouseout", fn_out) ;
 	}
 }) ;
-CWeb.easing = {
-	/*
-	 *t = Zeit Differenz
-	 *z = Ziel Position
-	 *s = Start Position
-	 *d = Dauer
-	 *a = aktuelle Zeit
-	 */
-	linear: function(t, z, s, d) {
-		var step = ( z - s ) / d * t ;
-		return step ;
-	},
-	swing: function(t, z, s, d, a) {
-		var step = (( z - s ) / d * t);
-		return step ;
-	}
-}
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed, easing, callback) {
 		var self = this ;
@@ -702,13 +718,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.hideStyle["opacity"] = CWeb.getCurCss(this, "opacity") ;
 			}
 			CWeb(this).animate({width: "0px", height: "0px", opacity: "0", hide: true}, speed, easing, function() {
-				for (var i = 0; i < self.length; i++) {
-					if (self[i]) {
-						self[i].hided = true ;
-					}
-					if (callback) {
-						callback.apply() ;
-					}
+				if (callback) {
+					callback.apply() ;
 				}
 			}) ;
 			this.hided = true;
@@ -739,13 +750,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.fadeStyle = CWeb.getCurCss(this, "opacity") ;
 			}
 			CWeb(this).animate({opacity: "0", hide: true}, speed, easing, function() {
-				for (var i = 0; i < self.length; i++) {
-					if (self[i]) {
-						self[i].faded = true ;
-					}
-					if (callback) {
-						callback.apply() ;
-					}
+				if (callback) {
+					callback.apply() ;
 				}
 			}) ;
 			this.faded = true ;
@@ -781,13 +787,8 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 				this.slideStyle	= CWeb.getCurCss(this, "height") ;
 			}
 			CWeb(this).animate({height: "0px", hide: true}, speed, easing, function() {
-				for (var i = 0; i < self.length; i++) {
-					if (self[i]) {
-						self[i].slided = true ;
-					}
-					if (callback) {
-						callback.apply() ;
-					}
+				if (callback) {
+					callback.apply() ;
 				}
 			}) ;
 				this.slided = true ;
@@ -806,7 +807,6 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 						}
 					}) ;
 			}
-			this.slided = false ;
 		}, [self, speed, easing, callback]) ;
 	},
 	fadeTo: function(to, speed, easing, callback) {
@@ -935,8 +935,8 @@ CWeb.fx = {
 				//Überprüfen, ob ein alter Wert existiert
 				if (self.elem.style["oldDisplay"]) {
 					if (self.elem.style["oldDisplay"] != "hidden" || self.elem.style["oldDisplay"] != "none") {
-						self.elem.style["oldDisplay"] = null ;
 						self.elem.style["display"] = self.elem.style["oldDisplay"] ;
+						self.elem.style["oldDisplay"] = null ;
 					}
 					else {
 						self.elem.style["oldDisplay"] = null ;
@@ -951,6 +951,11 @@ CWeb.fx = {
 			if (self.elem.style["display"] == "none" && !self.cssprop["hide"]) {
 				self.elem.style["display"] = "block" ;
 			}
+			if (self.elem.tagName == "A") {
+				self.elem.style["display"] = "inline-block" ;
+			}
+			
+			var count = 0 ;
 			for (j in self.cssprop) {
 				//Werte setzten, die noch nicht gesetzt wurden
 				if (j == "nocss" || j == "getItems" || j == "removeItem" || j == "hide" || j == "show") {
@@ -989,11 +994,16 @@ CWeb.fx = {
 				if (!self.opt.actTime[j]) {
 					self.opt.actTime[j] = self.opt.lastTime[j] ;
 				}
+				count++ ;
 				var einheit ;
 				if (j != "opacity") {
 					einheit = self.cssprop[j].replace(parseFloat(self.cssprop[j]), "")
 				}
 				self.css(j, self.step(j, self.opt.easing), einheit) ;
+				
+			}
+			if (count == 0) {
+				self.opt.done = true ;
 			}
 			cWeb.animQuery[i][1] = self.cssprop ;
 			cWeb.animQuery[i][1]["nocss"] = self.opt ;
@@ -1030,18 +1040,6 @@ CWeb.fx = {
 	},
 	//Animationsschritt ausrechnen
 	step: function(cssprop, easing) {
-			/* No CSS - Properties
-			 * allTime
-			 * timeLeft
-			 * callback
-			 * last[cssprop]
-			 * start[cssprop]
-			 * ziel[cssprop]
-			 * act[cssprop]
-			 * actTime[cssprop]
-			 * lastTime[cssprop]
-			 */
-			 
 			this.opt.lastTime[cssprop] = this.opt.actTime[cssprop] ;
 			this.opt.actTime[cssprop] = cWeb.now() + 1;
 			var timeDiff = this.opt.lastTime[cssprop] - this.opt.actTime[cssprop] ;
@@ -1108,6 +1106,9 @@ CWeb.easing = {
 	}
 } ;
 CWeb.getCurCss = function(elem, css) {
+	if (!elem.style) {
+		return ;
+	}
 	if (elem.style[css]) {
 		return elem.style[css] ;	
 	}
