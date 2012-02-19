@@ -224,4 +224,33 @@
  **Added:
  ***cWeb Object als Selector
  ****einzelnes HTML-Tag
- */
+ *Version 0.3.4 FINAL
+ **Verbessert:
+ ***.addClass(name)
+ ***.removeClass(name)
+ ***.children()
+ ***cWeb.Event.add()
+ ***cWeb.Event.remove()
+ ***cWeb.fn.hide()
+ ***cWeb.fx()
+ ***cWeb.fx.step()
+ ***cWeb.fx.easing
+ ***cWeb.getCurCss()
+ **Added:
+ ***cWeb.Browser: Browser-Detection
+ ***cWeb.Browser.IE.is: Gibt an, ob der MSIE genutzt wird.
+ ***cWeb.Browser.IE.version: Gibt die Version des MSIE an.
+ ***cWeb.Browser.ff.is
+ ***cWeb.Browser.ff.version
+ ***cWeb.Browser.chrome.is
+ ***cWeb.Browser.chrome.version
+ ***cWeb.Browser.Name: Enthält den Namen des genutzten Browsers:
+ ****Chrome / MSIE / Firefox
+ ***cWeb.Browser.Version: Enthält die Version des genutzten Browsers
+ ***cWeb.Browser.detect():
+ ****Muss einmal verwendet werden, um den Browser-Check durchzuführen.
+ ****Speichert die Werte in den o.g. Variablen ab.
+ ****Gibt "[BrowserName] | [BrowserVersion]" zurück.
+ ***Events:
+ ****mouseover, mouseout, load, ready
+*/

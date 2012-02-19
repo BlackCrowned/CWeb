@@ -1,6 +1,6 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.3.3            */
+/* Version: 0.3.4            */
 /* Rev: FINAL                */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
@@ -36,7 +36,7 @@ CWeb.fn = CWeb.prototype = {
 		this.context = context ;
 	 	return this ;
 	},
-	Version: '0.3.3',
+	Version: '0.3.4',
 	Rev: 'FINAL',
 	length: 0,
 	cWeb: true,
@@ -61,9 +61,7 @@ CWeb.fn = CWeb.prototype = {
 			}, [name]) ;
 		}
 		if (type == "get") {
-			for (var i = 0; i < this.length; i++) {
-				return this[i][name] ;	
-			}
+			return this[0][name] ;	
 		}
 		return this;
 	},
@@ -135,13 +133,11 @@ CWeb.fn = CWeb.prototype = {
 		return this.each(this, function() {
 			this.className = this.className != ""? this.className + " " + name : this.className + name ;
 		}, [name]) ;
-		return this.attr("class", name) ;
 	},
 	removeClass: function(name) {
 		return this.each(this, function() {
 			this.className = this.className.replace(name ,"") ;
 		}, [name]) ;
-		return this.attr("remove", "class") ;
 	},
 	end: function() {
 		return this.Stack("pop") ;
@@ -157,16 +153,18 @@ CWeb.fn = CWeb.prototype = {
 	children: function() {
 		//Aktuelles CWeb-Objekt im Stack speichern
 		this.Stack("push", this) ;
-		for (i = 0; i < this.length; i++) {
-			var j = 0 ;
-			var ChildNodes = new Array();
-			ChildNodes[i] = this[i].childNodes ;
-			ChildNodes.length = i + 1;
-		}
-		for (i = 0; i < ChildNodes.length; i++) {
-			for (j = 0; j < ChildNodes[i].length; j++) {
-				this[i][j] = ChildNodes[i][j] ;	
+		var ChildNodes = [] ;
+		for (var i = 0; i < this.length; i++) {
+			for (var j = 0; j < this[i].childNodes.length; j++) {
+				ChildNodes.push(this[i].childNodes[j]) ;
 			}
+		}
+		for (var i = 0; i < this.length; i++) {
+			this[i] = undefined ;
+		}
+		this.length = 0 ;
+		for (var i = 0; i < ChildNodes.length; i++) {
+			this.push(ChildNodes[i]) ;
 		}
 		return this ;
 	},
@@ -559,13 +557,93 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 
 }) ;
 CWeb.Browser = {
+	regex: {
+		ie: / /,
+		//Mozilla/5.0 (Windows NT 6.0; rv:9.0.1) Gecko/20100101 Firefox/9.0.1
+		firefox: /^\w*\/[0-9]+\.[0-9]+\s\(.*\)\s\w+\/[0-9]+\sFirefox\/[0-9]+\.[0-9]+\.[0-9+]$/,
+		firefox_version: /^\w*\/[0-9]+\.[0-9]+\s\(.*\)\s\w+\/[0-9]+\sFirefox\//
+	},
+    Data: [
+        {
+            string: navigator.userAgent,
+            Name: "Chrome",
+            Version: "Chrome"
+        },
+        {
+            string: navigator.userAgent,
+            Name: "Firefox",
+            Version: "Firefox"            
+        },
+        {
+            string: navigator.userAgent,
+            Name: "MSIE",
+            Version: "MSIE"
+        },
+        {
+            string: window.opera,
+            Name: "Opera",
+            Version: "Version"
+        }
+    ],
+	userAgent: window.navigator.userAgent,
+    nameDetect: function() {
+        for (var i = 0; i < this.Data.length; i++) {
+            var string = this.Data[i].string ;
+            var Name = this.Data[i].Name ;
+
+            if (string.match(Name)) {
+                this.versionSearch = this.Data[i].Version ;
+                return Name ;
+            }
+        }
+    },
+    versionDetect: function(SearchString) {
+        var index = SearchString.indexOf(this.versionSearch) ;
+        return parseFloat(SearchString.substring(index + this.versionSearch.length + 1)) ;
+    },
+    Name: "Unknown",
+	detect: function() {
+		this.Name = this.nameDetect() ;
+        this.Version = this.versionDetect(navigator.userAgent) ;
+		
+        if(this.Name == "Chrome") {
+            this.chrome.is = true ;
+            this.chrome.version = this.Version ;
+        }
+
+        if(this.Name == "Firefox") {
+            this.ff.is = true;
+            this.ff.version = this.Version ;
+        }
+
+        if (this.Name == "MSIE") {
+            this.IE.is = true ;
+            this.IE.version = this.Version ;
+        }
+
+		return this.Name + " | " + this.Version;
+	},
 	isIE: function() {
 		if (window.ActiveXObject) {
+			this.IE.is = true ;
 			return true ;	
 		}
 		else {
+			this.IE.is = false ;
 			return false ;	
 		}
+	},
+    chrome: {
+        is: false,
+        version: null
+    },
+    IE: {
+		is: false,
+		version: null
+	},
+	ff: {
+		is: false,
+		version: null
 	}
 }
 CWeb.Event = {
@@ -579,6 +657,9 @@ CWeb.Event = {
 		}
 		if (!cWeb.Event.firingList[elem.eid][type]) {
 			cWeb.Event.firingList[elem.eid][type] = [] ;
+		}
+		if (!params) {
+			params = [] ;
 		}
 		cWeb.Event.firingList[elem.eid][type].push({handler: handler, params: params}) ;
 		return cWeb.Event.firingList ;
@@ -629,13 +710,15 @@ CWeb.Event = {
 			if (firingList[target.eid]) {
 				if (firingList[target.eid][type]) {
 					for (var i = 0; i < firingList[target.eid][type].length; i++) {
-						firingList[target.eid][type][i]["handler"].apply(window, [event, firingList[target.eid][type][i]["params"]]) ;
+						firingList[target.eid][type][i]["params"]["event"] = event ;
+						firingList[target.eid][type][i]["handler"].apply(window, firingList[target.eid][type][i]["params"]) ;
 					}
 				}
 			}		
 		}
 	},
 	fixEvent: function(event) {
+		alert(event) ;
 		if (!event) {return null} ;
 		event.preventDefault = function() {
 			this.returnValue = false ;
@@ -702,6 +785,24 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 	hover: function(fn_in, fn_out) {
 		this.bindEvent("mouseover", fn_in) ;
 		return this.bindEvent("mouseout", fn_out) ;
+	},
+	mouseover: function(fn) {
+		return this.bindEvent("mouseover", fn) ;
+	},
+	mouseout: function(fn) {
+		return this.bindEvent("mouseout", fn) ;
+	},
+	_ready: CWeb.fn.ready,
+	ready: function(fn) {
+		if (this[0] == document) {
+			return this._ready(fn) ;
+		}
+		else {
+			return this.bindEvent("ready", fn) ;
+		}
+	},
+	load: function(fn) {
+		return this.bindEvent("load", fn) ;
 	}
 }) ;
 CWeb.fn = CWeb.extend(CWeb.fn, {
@@ -890,9 +991,7 @@ CWeb.fx = {
 				if (!cWeb.animQuery[i][2]) {
 					cWeb.animQuery[i][2] = new Array() ;
 				}
-				for (var j in props) {
-					cWeb.animQuery[i][2].push(props) ;
-				}
+				cWeb.animQuery[i][2].push(props) ;
 				return cWeb.animQuery ;
 			}
 		}
@@ -988,11 +1087,17 @@ CWeb.fx = {
 				if (!self.opt.actTime) {
 					self.opt.actTime = [] ;
 				}
+				if (!self.opt.startTime) {
+					self.opt.startTime = [] ;
+				}
 				if (!self.opt.lastTime[j]) {
 					self.opt.lastTime[j] = cWeb.now() ;
 				}
 				if (!self.opt.actTime[j]) {
 					self.opt.actTime[j] = self.opt.lastTime[j] ;
+				}
+				if (!self.opt.startTime[j]) {
+					self.opt.startTime[j] = self.opt.lastTime[j] ;
 				}
 				count++ ;
 				var einheit ;
@@ -1043,7 +1148,7 @@ CWeb.fx = {
 			this.opt.lastTime[cssprop] = this.opt.actTime[cssprop] ;
 			this.opt.actTime[cssprop] = cWeb.now() + 1;
 			var timeDiff = this.opt.lastTime[cssprop] - this.opt.actTime[cssprop] ;
-			var animPos = this.opt.allTime / this.opt.timeLeft ;
+			var animPos = (this.opt.actTime[cssprop] - this.opt.startTime[cssprop]) / this.opt.allTime ;
 			var animDiff = parseFloat(this.opt.ziel[cssprop]) - parseFloat(this.opt.start[cssprop]) ;
 			var step = animDiff / this.opt.allTime * timeDiff ;
 			if (!cWeb.easing[easing]) {
@@ -1102,7 +1207,10 @@ CWeb.easing = {
 		return step ;
 	},
 	swing: function(step, animPos) {
-		return step / animPos * 0.5;
+		return step * animPos * 2 ;
+	},
+	swing_2: function(step, animPos) {
+		return step * animPos * 2 ;
 	}
 } ;
 CWeb.getCurCss = function(elem, css) {
@@ -1130,13 +1238,20 @@ CWeb.getCurCss = function(elem, css) {
 				match = match.replace("-", "") ;
 				return match.toUpperCase() ;
 			}) ;
+			if (prop == "opacity") {
+				prop = prop.replace("filter(alpha=", "") ;
+				prop = prop.replace(")", "") ;
+			}
 			ret = elem.currentStyle[prop] ;
 			if (ret == "auto") {
 				if (prop == "height") {
 					ret = elem.scrollHeight ;
+					//ret = elem.offsetHeight ;
 				}
 				if (prop == "width") {
 					ret = elem.scrollWidth ;
+					//ret = elem.offsetWidth ;
+					alert(ret) 
 				}
 			}
 		}
