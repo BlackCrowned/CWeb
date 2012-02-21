@@ -1,7 +1,7 @@
 /*+++++++++++++++++++++++++++*/
 /* CWeb Javascript - Library */
-/* Version: 0.3.4            */
-/* Rev: FINAL                */
+/* Version: 0.4.0            */
+/* Rev: Ajax                 */
 /* Credits: Michael Möhrle   */
 /*+++++++++++++++++++++++++++*/
 
@@ -36,8 +36,8 @@ CWeb.fn = CWeb.prototype = {
 		this.context = context ;
 	 	return this ;
 	},
-	Version: '0.3.4',
-	Rev: 'FINAL',
+	Version: '0.4.0',
+	Rev: 'Ajax',
 	length: 0,
 	cWeb: true,
 	size: function() {
@@ -140,11 +140,11 @@ CWeb.fn = CWeb.prototype = {
 		}, [name]) ;
 	},
 	end: function() {
-		return this.Stack("pop") ;
+		return this.Stack("pop", cWeb) ;
 	},
 	parent: function() {
 		//Aktuelles CWeb-Objekt im Stack speichern
-		this.Stack("push", this) ;
+		this.Stack("push", this, cWeb) ;
 		for (i = 0; i < this.length; i++) {
 			this[i] = this[i].parentNode ;
 		}
@@ -152,7 +152,7 @@ CWeb.fn = CWeb.prototype = {
 	},
 	children: function() {
 		//Aktuelles CWeb-Objekt im Stack speichern
-		this.Stack("push", this) ;
+		this.Stack("push", this, cWeb) ;
 		var ChildNodes = [] ;
 		for (var i = 0; i < this.length; i++) {
 			for (var j = 0; j < this[i].childNodes.length; j++) {
@@ -333,19 +333,18 @@ CWeb.ready = {
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	Stack: function(action, obj, caller) {
 		//caller = obj, falls caller nicht existiert.
-		!caller ? caller = obj : caller ;
+		caller = caller || obj ;
 		//Stack erstellen, wenn er nicht existiert
 		if (!caller.stack) {
 			caller.stack = new Array() ;	
 		}
 		if (action == "push") {
 			//caller.Stack.push(obj) ;
-			caller.stack = caller.stack.push(obj) ;
+			caller.stack.push(obj) ;
 			return caller ;
 		}
 		if (action == "pop") {
-			caller.Stack = caller.stack.pop() ;
-			return caller ;
+			return caller.stack.pop() ;
 		}
 	},
 	selecter: function(selector, context) {
@@ -731,16 +730,16 @@ CWeb.Event = {
 	
 }
 CWeb.fn = CWeb.extend(CWeb.fn, {
-	bindEvent: function(type, fn) {
+	bindEvent: function(type, fn, params) {
 		var self = this ;
 		return this.each(this, function() {
 			if (document.body.addEventListener) {	
 				this.addEventListener(type, cWeb.Event.triggerHandler, false) ;
-				cWeb.Event.add(this, type, fn) ;
+				cWeb.Event.add(this, type, fn, params) ;
 			}
 			else {
 				this.attachEvent("on" + type, cWeb.Event.triggerHandler) ;
-				cWeb.Event.add(this, type, fn) ;
+				cWeb.Event.add(this, type, fn, params) ;
 			}
 		}, [type, fn, self]) ;
 	},
@@ -805,6 +804,64 @@ CWeb.fn = CWeb.extend(CWeb.fn, {
 		return this.bindEvent("load", fn) ;
 	}
 }) ;
+
+CWeb.Ajax = {
+    handle: {
+        open: function(file, params, handler, ajaxState) {
+            if (!handler) {
+                return -1;
+            }
+            var xmlobj ;
+            if (window.XMLHttpRequest) {
+                xmlobj = new XMLHttpRequest ;
+            }
+            else if(window.ActiveXObject) {
+                xmlobj = new ActiveXObject("Microsoft.XMLHTTP") ;
+            }
+            else {
+                handler.apply(this, [-1, -1, "<b>THE XMLHttpRequest-Handler caught fire during handling your request!</b>"]) ;
+            }
+
+            xmlobj.onreadystatechange = function() {
+                if (ajaxState == true) {
+                    if (xmlobj.readyState != 4) {
+                        handler.apply(this, [0, xmlobj.readyState]) ;
+                    }
+                    else {
+                        handler.apply(this, [xmlobj.status, xmlobj.readyState, xmlobj.responseText]) ;
+                    }
+                }
+                else {
+                    if (xmlobj.readyState == 4 && xmlobj.status == 200) {
+                        handler.apply(this, [200, 4, xmlobj.responseText]) ;
+                    }
+                    else if (xmlobj.readyState == 4 && xmlobj.status != 200) {
+                        handler.apply(this, [xmlobj.status, 4, "<b>THE XMLHttpRequest-Handler caught fire during handling your request!</b>"]) ;
+                    }
+                }
+            } ;
+
+            if (!params) {
+                xmlobj.open("GET", file, true) ;
+                xmlobj.send() ;
+            }
+            else {
+                xmlobj.open("POST", file, true) ;
+                xmlobj.send(params) ;
+            }
+            
+
+        }
+    },
+    stack: [],
+    ajax: function(file, handler, params, ajaxState) {
+        if (typeof handler !== "function") {
+            return -1 ;
+        }
+        this.handle.open(file, params, handler, ajaxState) ;
+    }
+}
+
 CWeb.fn = CWeb.extend(CWeb.fn, {
 	hide: function(speed, easing, callback) {
 		var self = this ;
@@ -1125,8 +1182,8 @@ CWeb.fx = {
 					self.elem.style["display"] = "none" ;
 				}
 				if (self.callback) {
-					if (typeof callback === "function") {
-						callback.apply() ;
+                    if (typeof self.callback === "function") {
+						self.callback.apply() ;
 					}
 				}
 				if (cWeb.animQuery[i][2]) {
